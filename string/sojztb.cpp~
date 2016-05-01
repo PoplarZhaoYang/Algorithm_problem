@@ -81,7 +81,7 @@ int main(void)
             if (!i) x = s[i];
             else if(s[i] != x) ok = true;
         }
-        if (ok) getmins(n);
+        if (ok) ans = getmins(n);
             
 
         for (int i = ans; ; i++) {
