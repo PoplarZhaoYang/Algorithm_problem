@@ -1,11 +1,12 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
  *Created Time*  : 六  5/ 7 21:17:06 2016
- *File Name*     : hdu1010.cpp
-**Problem**:扩展kmp求字符串最小循环节   
+ *File Name*     : poj2406.cpp
+**Problem**:扩展kmp   
 **Analyse**:
 如果$k$是字符串的循环节,$$str.substr(0) == str.substr(k)$$
 这里恰好是最长前缀和后缀,用extkmp来正好.
+求最小循环节,且这个循环节长度要能整除slen.
 
 **Code**:
 ***********************1599664856@qq.com**********************/
@@ -38,7 +39,7 @@ vector<int> vi;
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3fffffff;
-const int maxn = 1e6 + 13;
+const int maxn = 4e5 + 13;
 char t[maxn], s[maxn];
 int nexts[maxn], extend[maxn], slen, tlen;
 
@@ -71,25 +72,19 @@ void getextend (void)
 int main(void)
 {
 #ifdef LOCAL
-   // freopen("/Users/zhaoyang/in.txt", "r", stdin);
+//    freopen("/Users/zhaoyang/in.txt", "r", stdin);
     //freopen("/Users/zhaoyang/out.txt", "w", stdout);
 #endif
     ios_base::sync_with_stdio(false),cin.tie(0),cout.tie(0);
-    while (true) {
-        scanf("%s", s);
-        if (s[0] == '.' && s[1] == '\0') break;
+    while (~scanf("%s", s)) {
         memcpy(t, s, sizeof(s));
         getextend();
-        int ans = slen;
-        for (int i = 1; i < slen; i++) {
-            pl(extend[i]);
-            if (extend[i] == slen - i && slen % ans == 0) {
-                ans = i;
-                break;
+        for (int i = slen - 1; i >= 0; i--) {
+            if (extend[i] >= slen - i) {
+                printf("%d ", slen - i);
             }
         }
-        pri(slen / ans);
+        printf("\n");
     }
-    
     return 0;
 }
