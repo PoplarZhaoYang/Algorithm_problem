@@ -45,7 +45,7 @@ int nexts[maxn], extend[maxn], slen, tlen;
 //计算next数组，保存到next参数中。
 void getextendnexts(void)
 {
-    tlen = strlen(t), slen = strlen(s);
+    tlen = slen = strlen(s);
     for (int i = 1, j = -1, a, p; i < tlen; i++, j--)
         if (j < 0 || i + nexts[i - a] >= p) {
             if (j < 0)  j = 0, p = i;
@@ -75,17 +75,19 @@ int main(void)
     //freopen("/Users/zhaoyang/out.txt", "w", stdout);
 #endif
     ios_base::sync_with_stdio(false),cin.tie(0),cout.tie(0);
-    while (~scanf("%s", s)) {
+    while (true) {
+        scanf("%s", s);
+        if (s[0] == '.' && s[1] == '\0') break;
         memcpy(t, s, sizeof(s));
         getextend();
         int ans = slen;
         for (int i = 1; i < slen; i++) {
-            if (extend[i] == slen - i) {
+            if (extend[i] == slen - i && slen % i == 0) {
                 ans = i;
                 break;
             }
         }
-        pri(ans);
+        pri(slen / ans);
     }
     
     return 0;
