@@ -1,13 +1,9 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 六  5/ 7 21:17:06 2016
- *File Name*     : poj2406.cpp
-**Problem**:扩展kmp   
+ *Created Time*  : 日  5/ 8 00:09:05 2016
+ *File Name*     : zoj3430.cpp
+**Problem**:
 **Analyse**:
-如果$k$是字符串的循环节,$$str.substr(0) == str.substr(k)$$
-这里恰好是最长前缀和后缀,用extkmp来正好.
-求最小循环节,且这个循环节长度要能整除slen.
-
 **Code**:
 ***********************1599664856@qq.com**********************/
 
@@ -39,52 +35,39 @@ vector<int> vi;
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3fffffff;
-const int maxn = 4e5 + 13;
-char t[maxn], s[maxn];
-int nexts[maxn], extend[maxn], slen, tlen;
-
-//计算next数组，保存到next参数中。
-void getextendnexts(void)
-{
-    tlen = slen = strlen(s);
-    for (int i = 1, j = -1, a, p; i < tlen; i++, j--)
-        if (j < 0 || i + nexts[i - a] >= p) {
-            if (j < 0)  j = 0, p = i;
-            while (p < tlen && t[j] == t[p]) j++, p++;
-            nexts[i] = j, a = i;
-        }
-        else nexts[i] = nexts[i - a];
-}
-
-void getextend (void)
-{
-    getextendnexts();  //计算next数组。mx是表示最大长度的常数。
-    for (int i = 0, j = -1, a, p; i < slen; i++, j--)
-        if (j < 0 || i + nexts[i - a] >= p) {
-            if (j < 0)  j = 0, p = i;
-            while (p < slen && j < tlen && s[p] == t[j]) j++, p++;
-            extend[i] = j, a = i;
-        }
-        else extend[i] = nexts[i - a];
-}
+const int maxn = 1e5 + 13;
+int a[5555], num[5555], n;
+int ans[5555];
 
 
 int main(void)
 {
 #ifdef LOCAL
-//    freopen("/Users/zhaoyang/in.txt", "r", stdin);
+    //freopen("/Users/zhaoyang/in.txt", "r", stdin);
     //freopen("/Users/zhaoyang/out.txt", "w", stdout);
 #endif
     ios_base::sync_with_stdio(false),cin.tie(0),cout.tie(0);
-    while (~scanf("%s", s)) {
-        memcpy(t, s, sizeof(s));
-        getextend();
-        for (int i = slen - 1; i >= 0; i--) {
-            if (extend[i] >= slen - i) {
-                printf("%d ", slen - i);
-            }
+    sa(n);
+    for (int i = 1; i <= n; i++) sa(a[i]);
+    int cur = 0;
+    for (int i = 1; i <= n; i++) {
+        for (int j = i; j <= n; j++) {
+            num[a[j]]++;
+            if (num[a[j]] == num[cur] && a[j] < cur) {
+                ans[a[j]]++;
+                cur = a[j];
+            } else if (num[a[j]] > num[cur]) {
+                ans[a[j]]++;
+                cur = a[j];
+            } else ans[cur]++;
         }
-        printf("\n");
+        for (int j = 0; j <= n; j++) num[j] = 0;
+        cur = 0;
     }
+    for (int i = 1; i <= n; i++) {
+        cout << ans[i] << " "; 
+    }
+    cout << endl;
+    
     return 0;
 }
