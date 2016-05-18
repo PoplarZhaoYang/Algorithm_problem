@@ -1,18 +1,15 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 六  5/14 21:08:38 2016
- *File Name*     : jy.cpp
-**Problem**:soj4515 多重划分经典dp
-给你一个多重背包,问你其中的物品能否组成$k(k < 100,000)$
+ *Created Time*  : 日  5/15 15:00:03 2016
+**Problem**:soj 4511   dp差值 
 **Analyse**:
-> - 最直观的思路就是多重背包来做,然后写了个单调队列优化的多重背包,复杂复杂度$O(vn)$,由于常数大,仍然TLE\
-> - 注意到这里我们只需要知道是否拼凑够$k$,这个信息很常规的多重背包的信息要求是不对称的,所以该
-转变一下状态的定义方式.
-> - 定义$dp[i][j]$:前$i$个数,拼凑成$j$的背包还剩多少个第$i$个物品.这样可以$O(1)$转移,复杂度$O(vn)$
-常数非常小.
+- 差值dp,最大限度的减少信息容易,而有最低的维度.
+- 这里要想象有两个任务堆,左边一个,右边一个,然后往上面添加任务.
+- 这个题与前面的积木堆得不同是,任务的执行顺序的限制,这需要在dp转移的时候结合实际来考虑.
+- 定义$dp[i][j]$:前$i$个物品形成左堆和右堆得差值为$j$的序列的最小时间 .
+- 转的核心就是本机器里的任务要执行完了再叠加,内存给的比较小,用滚动数组实现.
 **Get**:
-常规的多重背包之所以有大的复杂度,就是因为每个物品的个数为$m_i$,二进制优化就是来$log^{\sum m_i}$的处理,而单调队列优化是数据结构维护实现直接求最大值.
-但是对于本题,我们只需要知道是否抽够$i$,可以把这个用了多少个数,保存为dp的内容.
+差值dp的经典特点是两堆,然后维护该差值下的最值即可.
 **Code**:
 ***********************1599664856@qq.com**********************/
 
@@ -43,40 +40,42 @@ vector<int> vi;
 #define sal(n) scanf("%lld", &(n))
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
-const int mod = int(1e9) + 7, INF = 0x3fffffff;
-const int maxn = 1e5 + 13;
-
-int dp[maxn];
-int a[111], b[111];
+const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
+const int maxn = 6e3 + 13;
+int dp[2][maxn * 2];
+int a[2009], b[2016];
 
 int main(void)
 {
 #ifdef LOCAL
-    //freopen("/Users/zhaoyang/in.txt", "r", stdin);
+    freopen("/Users/zhaoyang/in.txt", "r", stdin);
     //freopen("/Users/zhaoyang/out.txt", "w", stdout);
 #endif
-    //ios_base::sync_with_stdio(false),cin.tie(0),cout.tie(0);
     int T; sa(T);
     while (T--) {
-        int n, k;
-        sa(n), sa(k);
-        memset(dp, -1, sizeof(dp));
-        dp[0] = 0; 
-        int cost, num;
-        for (int i = 0; i < n; i++) 
-            sa(a[i]);
-        for (int j = 0; j < n; j++) 
-            sa(b[j]);
+        int n, sum = 0; sa(n);
+        for (int i = 0; i < n; i++) sa(a[i]), sa(b[i]), sum = max(sum, max(a[i], b[i])); 
+        for (int i = -sum; i <= sum; i++) dp[0][i + maxn] = INF;
+        dp[0][0 + maxn] = 0;
         for (int i = 0; i < n; i++) {
-            cost = a[i], num = b[i];
-            if (dp[k] >= 0) break;
-            for (int j = 0; j <= k; j++) {
-                if (dp[j] >= 0) dp[j] = num;
-                else if (cost > j || dp[j - cost] <= 0) dp[j] = -1;
-                else dp[j] = dp[j - cost] - 1;
+            for (int j = -sum; j <= sum; j++) dp[(i + 1) % 2][j + maxn] = INF;
+            for (int j = -sum; j <= sum; j++) {
+                if (dp[i % 2][j + maxn] != INF) {
+                    if (j <= 0) {
+                         dp[(i + 1) % 2][j + a[i] + maxn] = min(dp[(i + 1) % 2][j + a[i] + maxn] ,dp[i % 2][j + maxn] + ((j + a[i]) < 0 ? 0 : (j + a[i])));
+                         dp[(i + 1) % 2][-b[i] + maxn] = min(dp[(i + 1) % 2][-b[i] + maxn], dp[i % 2][j + maxn] + b[i]);
+                    } else {
+                         dp[(i + 1) % 2][a[i] + maxn] = min(dp[(i + 1) % 2][a[i] + maxn], dp[i % 2][j + maxn] + a[i]);
+                         dp[(i + 1) % 2][j - b[i] + maxn] = min(dp[(i + 1) % 2][j - b[i] + maxn], dp[i % 2][j + maxn] + ((b[i] - j) < 0 ? 0 : (b[i] - j)));
+                    }
+                }
             }
         }
-        printf("%s\n", dp[k] >= 0 ? "yes" : "no");
+        int ans = INF;
+        for (int i = -sum; i <= sum; i++)   ans = min(ans, dp[n % 2][i + maxn] );
+        pri(ans);
     }
+
     return 0;
 }
+
