@@ -1,8 +1,8 @@
 "jibancanyang's .vimrc
 
 "基本配置
-set transparency=30 "透明度
-set background=dark 
+set transparency=11 "透明度
+"set background=dark 
 syntax on
 syntax enable
 set mouse=a
@@ -31,9 +31,9 @@ set incsearch "搜索加强
 set hlsearch "搜索高亮
 set guioptions-=T "一出工具栏
 set showcmd "显示出输入的命令
-set guifont=Menlo:h16 "字体和大小
+set guifont=Menlo:h15 "字体和大小
 set lines=55
-set columns=178
+set columns=100
 set whichwrap=b,s,<,>,[,] " 光标从行首和行末时可以跳到另一行去
 set scrolloff=3 "光标移动到上下两端,保持3行距离
 set history=1000 "历史记录条数从20到1000
@@ -90,11 +90,12 @@ map <F2> :call SetTitlea()<CR>
 func SetTitlea()
 let l = 0
 let l = l + 1 | call setline(l,'/**********************jibancanyang**************************')
-let l = l + 1 | call setline(l,' *Author        :jibancanyang')
-let l = l + 1 | call setline(l,' *Created Time  : '.strftime('%c'))
-let l = l + 1 | call setline(l,' *File Name     : '.expand('%c'))
-let l = l + 1 | call setline(l,' *Problem')
-let l = l + 1 | call setline(l,' *Get:')
+let l = l + 1 | call setline(l,' *Author*        :jibancanyang')
+let l = l + 1 | call setline(l,' *Created Time*  : '.strftime('%c'))
+let l = l + 1 | call setline(l,'**Problem**:')
+let l = l + 1 | call setline(l,'**Analyse**:')
+let l = l + 1 | call setline(l,'**Get**:')
+let l = l + 1 | call setline(l,'**Code**:')
 let l = l + 1 | call setline(l,'***********************1599664856@qq.com**********************/')
 let l = l + 1 | call setline(l,'')
 let l = l + 1 | call setline(l,'#include <cstdio>')
@@ -114,31 +115,64 @@ let l = l + 1 | call setline(l,'using namespace std;')
 let l = l + 1 | call setline(l,'typedef pair<int, int> pii;')
 let l = l + 1 | call setline(l,'typedef long long ll;')
 let l = l + 1 | call setline(l,'typedef unsigned long long ull;')
-let l = l + 1 | call setline(l,'vector<int> vi;')
+let l = l + 1 | call setline(l,'typedef vector<int> vi;')
 let l = l + 1 | call setline(l,'#define pr(x) cout << #x << ": " << x << "  " ')
 let l = l + 1 | call setline(l,'#define pl(x) cout << #x << ": " << x << endl;')
+let l = l + 1 | call setline(l,'#define pri(a) printf("%d\n",(a));')
 let l = l + 1 | call setline(l,'#define xx first')
 let l = l + 1 | call setline(l,'#define yy second')
 let l = l + 1 | call setline(l,'#define sa(n) scanf("%d", &(n))')
-let l = l + 1 | call setline(l,'#define rep(i, a, n) for (int i = a; i < n; i++)')
+let l = l + 1 | call setline(l,'#define sal(n) scanf("%lld", &(n))')
+let l = l + 1 | call setline(l,'#define sai(n) scanf("%I64d", &(n))')
 let l = l + 1 | call setline(l,'#define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) ')
-let l = l + 1 | call setline(l,'const int mod = int(1e9) + 7, INF = 0x3fffffff, maxn = 1e5 + 12;')
+let l = l + 1 | call setline(l,'const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;')
+let l = l + 1 | call setline(l,'const int maxn = 1e5 + 13;')
 let l = l + 1 | call setline(l,'')
 let l = l + 1 | call setline(l,'')
 let l = l + 1 | call setline(l,'')
 let l = l + 1 | call setline(l,'int main(void)')
 let l = l + 1 | call setline(l,'{')
 let l = l + 1 | call setline(l,'#ifdef LOCAL')
-let l = l + 1 | call setline(l,'    //freopen("in.txt", "r", stdin);')
-let l = l + 1 | call setline(l,'    //freopen("out.txt", "w", stdout);')
+let l = l + 1 | call setline(l,'    //freopen("/Users/zhaoyang/in.txt", "r", stdin);')
+let l = l + 1 | call setline(l,'    //freopen("/Users/zhaoyang/out.txt", "w", stdout);')
 let l = l + 1 | call setline(l,'#endif')
-let l = l + 1 | call setline(l,'    cin.sync_with_stdio(false);')
+" let l = l + 1 | call setline(l,'    ios_base::sync_with_stdio(false),cin.tie(0),cout.tie(0);')
 let l = l + 1 | call setline(l,'    ')
 let l = l + 1 | call setline(l,'    return 0;')
 let l = l + 1 | call setline(l,'}')
 endfunc
 endif
 
+
+"""""xiao ai
+
+if !exists("*SetTitleb")
+map <F3> :call SetTitleb()<CR>
+func SetTitleb()
+let l = 0
+let l = l + 1 | call setline(l,'#include <cstdio>')
+let l = l + 1 | call setline(l,'#include <cstring>')
+let l = l + 1 | call setline(l,'#include <iostream>')
+let l = l + 1 | call setline(l,'#include <algorithm>')
+let l = l + 1 | call setline(l,'#include <string>')
+let l = l + 1 | call setline(l,'#include <cmath>')
+let l = l + 1 | call setline(l,'using namespace std;')
+let l = l + 1 | call setline(l,'#define pr(x) cout << #x << ": " << x << "  " ')
+let l = l + 1 | call setline(l,'#define pl(x) cout << #x << ": " << x << endl;')
+let l = l + 1 | call setline(l,'const int maxn = 1e5 + 13;')
+let l = l + 1 | call setline(l,'')
+let l = l + 1 | call setline(l,'')
+let l = l + 1 | call setline(l,'int main()')
+let l = l + 1 | call setline(l,'{')
+let l = l + 1 | call setline(l,'#ifdef xiaoai')
+let l = l + 1 | call setline(l,'    //freopen("in.txt", "r", stdin);')
+let l = l + 1 | call setline(l,'    //freopen("out.txt", "w", stdout);')
+let l = l + 1 | call setline(l,'#endif')
+let l = l + 1 | call setline(l,'    ')
+let l = l + 1 | call setline(l,'    return 0;')
+let l = l + 1 | call setline(l,'}')
+endfunc
+endif
 
 "the cpp f5 run program
 map <F5> :call CompileRunGcc()<CR>
@@ -148,7 +182,7 @@ func! CompileRunGcc()
            exec "!g++ % -DLOCAL -o   %<"
            exec "!time ./%<"
         elseif &filetype == 'cpp'
-           exec "!g++ % -DLOCAL -o    %<"
+           exec "!g++ % -std=c++11 -DLOCAL -Dxiaoai -o    %<"
            exec "!time ./%<"
         elseif &filetype == 'java'
            exec "!javac %"
