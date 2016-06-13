@@ -1,0 +1,10 @@
+#!/bin/sh
+cd ~/code/ACM
+git add .
+git commit -m "jibancanyang"
+git push origin master
+
+echo "git operator is completed!"
+
+
+

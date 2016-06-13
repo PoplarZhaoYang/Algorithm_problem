@@ -7,69 +7,57 @@
 using namespace std;
 #define pr(x) cout << #x << ": " << x << "  " 
 #define pl(x) cout << #x << ": " << x << endl;
-class trie
+
+class kmp
 {
 private:
-    int n, m;
-    static const int maxn = 1e5 + 13;
-    char word[maxn];
-    struct node {
-        int num;
-        node* son[26];
-        node(void) {
-            num = 0;
-            memest(son, 0, sizeof(son));
-        }
-    } *root;
-    int ans;
+    static const int maxn = int(1e6) + 13;
+    int n, slen, plen;
+    char p[maxn], s[maxn];
+    int next[maxn];
 public:
-    void input(void) {
-        root = new node;
-        scanf("%d", &n);
+    void input(void) { 
+        std::cin >> n;
         while (n--) {
-            scanf("%s", word);
-            add();
-        }
-        scanf("%d", &m);
-        while (m--) {
-            scanf("%s", word);
-            query();
-            printf("%d\n", ans);
+            std::cin >> p >> s;
+            slen = strlen(s), plen = strlen(p);
+            getnext();
+            std::cout << getcnt() << std::endl;
         }
     }
-    void add(void) {
-        node *cur = root;
-        for (int i = 0; word[i] != '\0'; i++) {
-            if ((cur -> son)[word[i] - 'a'] == nullptr) 
-                (cur -> son)[word[i] - 'a'] = new node;
-            cur = (cur -> son)[word[i] - 'a'];
-            (cur -> num)++;
-        }
-    }
-    
-    void query(void) {
-        node *cur = root;
-        for (int i = 0; word[i] != '\0'; i++) {
-            if (cur -> son[word[i] - 'a'] == nullptr) {
-                ans = 0;
-                break;
-            }
-            cur = cur -> son[word[i] - 'a'];
-            if (!word[i + 1]) {
-                ans = cur -> num; 
+
+    int getcnt(void) {
+        int i = 0, j = 0, cnt = 0;
+        while (i < slen) {
+            if (j == -1 || p[j] == s[i]) i++, j++;
+            else j = next[j];
+            if (j == plen) {
+                cnt++;
+                j = next[j];
             }
         }
+        return cnt;
     }
+
+    void getnext(void) {
+        next[0] = -1;
+        int k = -1, j = 0;
+        while (j < plen) {
+            if (k == -1 || p[j] == p[k]) {
+                j++, k++;
+                next[j] = k;
+            } else {
+                k = next[k];
+            }
+        }
+    }
+
 };
 
-
-int main()
-{
-#ifdef xiaoai
+int main(void) {
+#ifdef LOCAL
     freopen("in.txt", "r", stdin);
-    //freopen("out.txt", "w", stdout);
 #endif
-    trie temp;
+    kmp temp;
     temp.input();
-    return 0;
 }
