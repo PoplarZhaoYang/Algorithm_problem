@@ -7,57 +7,52 @@
 using namespace std;
 #define pr(x) cout << #x << ": " << x << "  " 
 #define pl(x) cout << #x << ": " << x << endl;
+const int mod = int(1e9) + 7, INF = 0x3fffffff, maxn = 1e5 + 12;
+typedef long long ll;
+int T, k;
+ll n, dp[20][200];
+int bits[20];
 
 
-//Manacher算法实现模板
-const int  maxn = 1e6  + 1e4 + 13;
+ll dfs(int len, int sum, bool limit, int th, ll ans, bool zero) {
+    if (len == 0) {return  sum == 0 ? ans : 0;}
+    if (!limit && dp[len][sum + 100] != -1) {pr(len), pr(sum), pr(ans), pl(dp[len][sum + 100]);return dp[len][sum + 100];}
 
-//开两倍多
-char str[maxn], aim[maxn * 2];
-int ti, P[maxn * 2]; //ti表示转换后的串的长度, P[i]表示以i为中心的回文子串的长度.
+    int m = limit ? bits[len] : 9;
+    ll ret = 0;
+    for (int i = 0; i <= m; i++) {
+        if (i) zero = true; 
+        if (th % 2) ret += dfs(len - 1, sum - i, limit && i == m, zero ? th + 1 : th, ans * 10 + i, zero);
+        else ret += dfs(len - 1, sum + i, limit && i == m, zero ? th + 1 : th, ans * 10 + i, zero);
+    }
 
-// 将str转换成aim
-// 比如，str = "abba", aim = "^#a#b#b#a#$"
-// ^和$符号用来表示开始和结束，并且避免边界检查。
-void pre()
-{
-    int len = strlen(str);
-    ti = 0;
-    if (len == 0) {aim[0] = '^', aim[1] = '$'; return;} //空串
-    aim[ti++] = '^';
-    for (int i = 0; i < len; i++) aim[ti++] = '#', aim[ti++] = str[i];
-    aim[ti++] = '#', aim[ti++] = '$';
+    if (!limit) dp[len][sum + 100] = ret % mod;
+    return ret % mod;
 }
 
-int  manacher()
-{
-    pre();
-    int c = 0, r = 0;
-    for (int i = 1; i < ti - 1; i++) {
-        int im = c - (i - c);
-        P[i] = r > i ? min(P[im], r - i) : 0;
-        while (aim[i + P[i] + 1] == aim[i - P[i] - 1]) P[i]++;
-        if (i + P[i] > r) c = i, r = i + P[i];
+ll solve(ll n) {
+    ll key = n, t = 1;
+    while (key) {
+        bits[t++] = key % 10;
+        key /= 10;
     }
-    int ret = 0;
-    for (int i = 1; i < ti - 1; i++) {
-        if (P[i] > ret) ret = P[i];
-    }
-    return ret;
+    return dfs(t - 1, k, true, 1, 0, false);
 }
 
-int main()
+
+int main(void)
 {
-#ifdef xiaoai
-    freopen("in.txt", "r", stdin);
-    //freopen("out.txt", "w", stdout);
+#ifdef LOCAL
+     freopen("in.txt", "r", stdin);
+   freopen("out.txt", "w", stdout);
 #endif
-    int n;
-    cin >> n;
-    while (n--) {
-        cin >> str;
-        cout << manacher() << endl;
+    ll l, r;
+    while (cin >> l >> r >> k) {
+        memset(dp, -1, sizeof(dp));
+        ll rs = solve(r);
+        memset(dp, -1, sizeof(dp));
+        ll ls = solve(l - 1);
+        cout << (rs - ls + mod) % mod << endl;
     }
-    
     return 0;
 }
