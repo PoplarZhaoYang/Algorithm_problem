@@ -10,36 +10,34 @@ using namespace std;
 const int mod = int(1e9) + 7, INF = 0x3fffffff, maxn = 1e5 + 12;
 typedef long long ll;
 int T, k;
-ll n, dp[20][200];
 int bits[20];
+ll base[20];
+
+struct node {
+    ll sum, cnt;
+}dp[20][20][400];
+
+node dfs(int len, int stagger_sum, int high_num, bool limit) {
 
 
-ll dfs(int len, int sum, bool limit, int th, ll ans, bool zero) {
-    if (len == 0) {return  sum == 0 ? ans : 0;}
-    if (!limit && dp[len][sum + 100] != -1) { return dp[len][sum + 100];}
-
-    int m = limit ? bits[len] : 9;
-
-    ll ret = 0;
-    for (int i = 0; i <= m; i++) {
-        if (i) zero = true; 
-        if (th % 2) ret += dfs(len - 1, sum - i, limit && i == m, zero ? th + 1 : th, ans * 10 + i, zero);
-        else ret += dfs(len - 1, sum + i, limit && i == m, zero ? th + 1 : th, ans * 10 + i, zero);
-    }
-
-    if (!limit) dp[len][sum + 100] = ret % mod;
-    return ret % mod;
 }
 
 ll solve(ll n) {
-    ll key = n, t = 1;
+    if (n <= 0) return 0;
+    ll key = n, t = 1, ret = 0;
     while (key) {
         bits[t++] = key % 10;
-        cout << bits[t - 1];
         key /= 10;
     }
-    cout << endl;
-    return dfs(t - 1, k, true, 1, 0, false);
+    t--;
+    base[1] = 1;
+    for (int i = 2; i < 20; i++) base[i] = base[i - 1] * 10 % mod;
+    for (int i = t; i > 0; i--) {
+        (ret += dp[i][bits[i] - 1]][k].sum % mod) %= mod;
+    }
+
+
+
 }
 
 
@@ -47,15 +45,12 @@ int main(void)
 {
 #ifdef LOCAL
      freopen("in.txt", "r", stdin);
-   freopen("out.txt", "w", stdout);
+   //freopen("out.txt", "w", stdout);
 #endif
     ll l, r;
     while (cin >> l >> r >> k) {
         memset(dp, -1, sizeof(dp));
-        ll rs = solve(r);
-        memset(dp, -1, sizeof(dp));
-        ll ls = solve(l - 1);
-        cout << (rs - ls + mod) % mod << endl;
+        cout << (solve(r) - solve(l - 1) + mod) % mod << endl;
     }
     return 0;
 }

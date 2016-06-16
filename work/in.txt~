@@ -1,2 +1,5 @@
-100 121 0
-
+4
+insert 1
+insert 1
+removeMin
+getMin 2

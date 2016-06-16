@@ -1,3 +1,12 @@
+/**********************jibancanyang**************************
+ *Author*        :jibancanyang
+ *Created Time*  : 四  6/16 21:00:50 2016
+**Problem**:
+**Analyse**:
+**Get**:
+**Code**:
+***********************1599664856@qq.com**********************/
+
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -27,21 +36,35 @@ typedef vector<int> vi;
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
 const int maxn = 1e5 + 13;
-int A[maxn], n, k;
 
-bool judge(int mid) {
-    ll hi = 0, ho = 0, v = 0;
-    for (int i = 0; i < n; i++) {
-        v += mid;
-        if (A[i] >= v) {
-            hi++;
-            v = 0;
-        } else {
-            ho++;
-            v -= A[i];
+int bits[20];
+int dp[20][10];
+
+int dfs(int len, int high, bool limit) 
+{
+    if (len == 1) {
+        return 1;
+    }
+    if (!limit && dp[len][high] != -1) return dp[len][high];
+    int m = limit ? bits[len - 1] : 9;
+    int ret = 0;
+    for (int i = 0; i <= m; i++) {
+        if (i != 4 && !(high == 6 && i == 2) ) {
+            ret += dfs(len - 1, i, limit && i == m);
         }
     }
-    return ho > hi;
+    if (!limit) dp[len][high] = ret;
+    return ret;
+}
+
+int solve(int n) {
+    int t = 1;
+    while (n) {
+        bits[t++] = n % 10;
+        n /= 10;
+    }
+    bits[t] = 9;
+    return dfs(t, 9, true);
 }
 
 int main(void)
@@ -50,16 +73,10 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    sa(n), sa(k);
-    for (int i = 0; i < n; i++) {
-        sa(A[i]);
+    int l, r;
+    while (sa(l), sa(r), l && r) {
+        memset(dp, -1, sizeof(dp));
+        pri(solve(r) - solve(l - 1));
     }
-    int l = 1, r = k;
-    while (l < r) {
-        int mid = (l + r) / 2;
-        if (judge(mid)) r = mid;
-        else l = mid + 1;
-    }
-    pri(l);
     return 0;
 }

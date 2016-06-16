@@ -16,9 +16,10 @@ int bits[20];
 
 ll dfs(int len, int sum, bool limit, int th, ll ans, bool zero) {
     if (len == 0) {return  sum == 0 ? ans : 0;}
-    if (!limit && dp[len][sum + 100] != -1) {pr(len), pr(sum), pr(ans), pl(dp[len][sum + 100]);return dp[len][sum + 100];}
+    if (!limit && dp[len][sum + 100] != -1) { return dp[len][sum + 100];}
 
     int m = limit ? bits[len] : 9;
+
     ll ret = 0;
     for (int i = 0; i <= m; i++) {
         if (i) zero = true; 
@@ -44,13 +45,12 @@ int main(void)
 {
 #ifdef LOCAL
      freopen("in.txt", "r", stdin);
-   freopen("out.txt", "w", stdout);
+   //freopen("out.txt", "w", stdout);
 #endif
     ll l, r;
     while (cin >> l >> r >> k) {
         memset(dp, -1, sizeof(dp));
         ll rs = solve(r);
-        memset(dp, -1, sizeof(dp));
         ll ls = solve(l - 1);
         cout << (rs - ls + mod) % mod << endl;
     }
