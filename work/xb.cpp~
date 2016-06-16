@@ -37,25 +37,25 @@ typedef vector<int> vi;
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
 const int maxn = 1e5 + 13;
 
-int bits[20];
-int dp[20][10];
+int bits[11];
+int dp[11][10][2][13];
 
-int dfs(int len, int high, bool limit) 
-{
-    if (len == 1) {
-        return 1;
+int dfs(int len, int high, bool have, bool limit, int res) {
+    if (len == 0) {
+        return !have && (res == 0);
     }
-    if (!limit && dp[len][high] != -1) return dp[len][high];
-    int m = limit ? bits[len - 1] : 9;
+    if (!limit && dp[len][high][have][res] != -1) return dp[len][high][have][res];
+
+    int m = limit ? bits[len] : 9;
     int ret = 0;
     for (int i = 0; i <= m; i++) {
-        if (i != 4 && !(high == 6 && i == 2) ) {
-            ret += dfs(len - 1, i, limit && i == m);
-        }
+        if ( (high == 1 && m == 3) || !have ) ret += dfs(len - 1, i, false, limit && i == m, (res * 10 + i) % 13 );
+        else  ret += dfs(len - 1, i, true, limit && i == m, (res * 10 + i) % 13);
     }
-    if (!limit) dp[len][high] = ret;
+    if (!limit) dp[len][high][have][res] = ret;
     return ret;
 }
+
 
 int solve(int n) {
     int t = 1;
@@ -64,7 +64,7 @@ int solve(int n) {
         n /= 10;
     }
     bits[t] = 9;
-    return dfs(t, 9, true);
+    return dfs(t - 1, 9, true, true, 0);
 }
 
 int main(void)
@@ -73,10 +73,10 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    int l, r;
-    while (sa(l), sa(r), l && r) {
-        memset(dp, -1, sizeof(dp));
-        pri(solve(r) - solve(l - 1));
+    int r;
+    memset(dp, -1, sizeof(dp));
+    while (~sa(r)) {
+        pri(solve(r));
     }
     return 0;
 }
