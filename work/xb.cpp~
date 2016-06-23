@@ -1,82 +1,55 @@
-/**********************jibancanyang**************************
- *Author*        :jibancanyang
- *Created Time*  : 四  6/16 21:00:50 2016
-**Problem**:
-**Analyse**:
-**Get**:
-**Code**:
-***********************1599664856@qq.com**********************/
-
-#include <cstdio>
-#include <cstring>
 #include <iostream>
-#include <algorithm>
-#include <vector>
-#include <queue>
-#include <set>
-#include <map>
-#include <string>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <stack>
+#include <climits>
+
 using namespace std;
-typedef pair<int, int> pii;
-typedef long long ll;
-typedef unsigned long long ull;
-typedef vector<int> vi;
-#define pr(x) cout << #x << ": " << x << "  " 
-#define pl(x) cout << #x << ": " << x << endl;
-#define pri(a) printf("%d\n",(a))
-#define xx first
-#define yy second
-#define sa(n) scanf("%d", &(n))
-#define sal(n) scanf("%lld", &(n))
-#define sai(n) scanf("%I64d", &(n))
-#define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
-const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 1e5 + 13;
-
-int bits[11];
-int dp[11][10][2][13];
-
-int dfs(int len, int high, bool have, bool limit, int res) {
-    if (len == 0) {
-        return !have && (res == 0);
-    }
-    if (!limit && dp[len][high][have][res] != -1) return dp[len][high][have][res];
-
-    int m = limit ? bits[len] : 9;
-    int ret = 0;
-    for (int i = 0; i <= m; i++) {
-        if ( (high == 1 && m == 3) || !have ) ret += dfs(len - 1, i, false, limit && i == m, (res * 10 + i) % 13 );
-        else  ret += dfs(len - 1, i, true, limit && i == m, (res * 10 + i) % 13);
-    }
-    if (!limit) dp[len][high][have][res] = ret;
-    return ret;
-}
-
-
-int solve(int n) {
-    int t = 1;
-    while (n) {
-        bits[t++] = n % 10;
-        n /= 10;
-    }
-    bits[t] = 9;
-    return dfs(t - 1, 9, true, true, 0);
-}
-
-int main(void)
+//单源最短路径Dijktra算法
+template<class Type>
+void Dijkstra(int n, int v, Type dist[], int prev[], Type (*c)[5])
 {
-#ifdef LOCAL
-    freopen("in.txt", "r", stdin);
-    //freopen("out.txt", "w", stdout);
-#endif
-    int r;
-    memset(dp, -1, sizeof(dp));
-    while (~sa(r)) {
-        pri(solve(r));
+    bool status[INT_MAX];
+    for(int i = 1; i < n; i++)//初始化距离、状态、和前驱点
+    {
+        dist[i] = c[v][i];
+        status[i] = false;
+        if(dist[i] == INT_MAX){prev[i] = 0;}
+        else prev[i] = v;
     }
-    return 0;
+    dist[v] = 0;
+    status[v] = true;
+
+    for(int i = 1; i < n; i++)
+    {
+        int u;
+        int temp = INT_MAX;
+        for(int j = 1; j < n; j++)//找到和集合S（已经找过的点的集合）中的点相距最短的点，并把该点归到集合S之中
+        {
+            if(status[j] == false && dist[j] < temp)
+            {
+                temp = dist[j];
+                u = j;
+            }
+        }
+        status[u] = true;
+        for(int j = 1; j < n; j++)//每归入S一个新点，更新一次dist
+        {
+            if(status[j] == false && dist[u] + c[u][j] < dist[j])//如果归入新点后dist比原来小了，更新表中dist
+            {
+                dist[j] = dist[u] + c[u][j];
+                prev[j] = u;
+            }
+        }
+    }
+}
+
+int main()
+{
+    int dist[10];
+    int pre[10];
+    int c[5][5] = {{0, 10, INT_MAX, 30, 100}, {INT_MAX, 0 , 50, INT_MAX, INT_MAX}, {INT_MAX, INT_MAX, 0, INT_MAX, 10}, {INT_MAX, INT_MAX, 20, 0, 60}, {INT_MAX, INT_MAX, INT_MAX, INT_MAX, 0}};
+    Dijkstra(5, 0, dist, pre, c);
+    for(int i = 0; i < 5; i++)
+    {
+        cout<<"dist["<<i + 1<<"]:"<<dist[i]<<endl;
+        cout<<"点1到点5的最短路径打印："<<pre[i + 1]<<","<<endl;
+    }
 }

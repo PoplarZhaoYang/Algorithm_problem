@@ -1,24 +1,18 @@
-#include <cstdio>
-#include <cstring>
 #include <iostream>
-#include <algorithm>
 #include <string>
-#include <cmath>
 using namespace std;
-#define pr(x) cout << #x << ": " << x << "  " 
-#define pl(x) cout << #x << ": " << x << endl;
-const int maxn = 1e5 + 13;
 
+int *test(int arr[], int n) {
+    sort(arr, arr + n);
+    return arr;
+}
 
-
-
-int main(void)
+int main()
 {
-#ifdef xiaoai 
-    //freopen("in.txt", "r", stdin);
-    //freopen("out.txt", "w", stdout);
-#endif
-    int n;
-    cin >> n;
+    int arr[] = {3, 1, 2};
+    int *sorted_arr = test(arr, 3);
+    for (int i = 0; i < 3; i++) {
+        cout << *(sorted_arr + i) << endl;
+    }
     return 0;
 }

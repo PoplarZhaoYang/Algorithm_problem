@@ -1,67 +1,18 @@
-/**********************jibancanyang**************************
- *Author*        :jibancanyang
- *Created Time*  : 三  6/15 00:49:13 2016
-**Problem**:
-**Analyse**:
-**Get**:
-**Code**:
-***********************1599664856@qq.com**********************/
-
-#include <cstdio>
-#include <cstring>
 #include <iostream>
-#include <algorithm>
-#include <vector>
-#include <queue>
-#include <set>
-#include <map>
 #include <string>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <stack>
 using namespace std;
-typedef pair<int, int> pii;
-typedef long long ll;
-typedef unsigned long long ull;
-typedef vector<int> vi;
-#define pr(x) cout << #x << ": " << x << "  " 
-#define pl(x) cout << #x << ": " << x << endl;
-#define pri(a) printf("%d\n",(a))
-#define xx first
-#define yy second
-#define sa(n) scanf("%d", &(n))
-#define sal(n) scanf("%lld", &(n))
-#define sai(n) scanf("%I64d", &(n))
-#define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
-const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 1e5 + 13;
 
+int *test(int arr[], int n) {
+    sort(arr, arr + n);
+    return arr;
+}
 
-
-int main(void)
+int main()
 {
-#ifdef LOCAL
-    //freopen("in.txt", "r", stdin);
-    //freopen("out.txt", "w", stdout);
-#endif
-    for (int n = int(1); n > 0; n += 13) {
-        //    cin >> n;
-        int a = 1234567, b = 123456, c = 1234;
-        bool ans = false;
-        for (int i = 0; a * i <= n; i++) {
-            for (int j = 0; j * b + a * i <= n; j++) {
-                int temp = n - j * b - a * i;
-                if (temp % c == 0) {
-                    ans = true;
-                    break;
-                }
-            }
-            if (ans) break;
-        }
-        if (!ans && n > 1e8) {
-            pri(n);
-        }
+    int arr[] = {3, 1, 2};
+    int *sorted_arr = test(arr, 3);
+    for (int i = 0; i < 3; i++) {
+        cout << *(sorted_arr + i) << endl;
     }
     return 0;
 }
