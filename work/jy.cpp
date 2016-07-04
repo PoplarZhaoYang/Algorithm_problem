@@ -1,6 +1,6 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 二  6/21 20:44:55 2016
+ *Created Time*  : 一  7/ 4 21:30:53 2016
 **Problem**:
 **Analyse**:
 **Get**:
@@ -33,58 +33,21 @@ typedef vector<int> vi;
 #define sa(n) scanf("%d", &(n))
 #define sal(n) scanf("%lld", &(n))
 #define sai(n) scanf("%I64d", &(n))
-#define vep(c) for(vector<int>::iterator it = (c).begin(); it != (c).end(); it++) 
-const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 1e5 + 13;
-int G[4][4];
-int dirx[] = {-1, 0, 1, 0};
-int diry[] = {0, 1, 0, -1};
-int aims[4][4] = { {1, 2, 3, 4} , {5, 6, 7, 8} , {9, 10, 11, 12} , {13, 14, 15, 0}};
-int aim;
-bool ans;
-pii mp[16];
+#define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
+const int mod = int(1e6) + 7, INF = 0x3f3f3f3f;
+const int maxn = 400 + 13;
+int C[maxn][maxn];
 
-inline int abss(int y) {
-    return y > 0 ? y : -y;
-}
-
-int star() {
-    int sum = 0;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            if (G[i][j]) sum += abss(mp[G[i][j]].xx - i) + abss(mp[G[i][j]].yy - j);
-        }
-    }
-    return sum;
-}
-
-inline void swaps(int &a, int &b) {
-    a ^= b;
-    b ^= a;
-    a ^= b;
-}
-
-
-void dfs(int res, int emptyx, int emptyy, pii pre, int stars) {
-    if (ans) return;
-    int k = stars;
-    if (res == 0) {
-        if (!k) ans = true;
-        return;
-    }
-    if (res < k) return;
-    for (int i = 0; i < 4; i++) {
-        int nxtx = emptyx + dirx[i], nxty = emptyy + diry[i];
-        if (nxtx >= 0 && nxtx < 4 && nxty >= 0 && nxty < 4 && !(nxtx == pre.xx && nxty == pre.yy)) {
-            int temp = stars;
-            temp -= abss(mp[G[nxtx][nxty]].xx - nxtx) + abss(mp[G[nxtx][nxty]].yy - nxty);
-            temp += abss(mp[G[nxtx][nxty]].xx - emptyx) + abss(mp[G[nxtx][nxty]].yy - emptyy);
-            swaps(G[emptyx][emptyy], G[nxtx][nxty]);
-            if (temp <= stars) dfs(res - 1, nxtx, nxty, pii(emptyx, emptyy), temp);
-            swaps(G[emptyx][emptyy], G[nxtx][nxty]);
+void getC(void) {
+    for (int i = 0; i <= 20 * 20; i++) C[i][0] = 1, C[i][i] = 1;
+    for (int i = 1; i <= 20 * 20; i++) {
+        for (int j = i - 1; j >= 1; j--) {
+            C[i][j] = (C[i - 1][j - 1] + C[i - 1][j]) % mod;
         }
     }
 }
+
+
 
 int main(void)
 {
@@ -92,32 +55,35 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    int n;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            mp[aims[i][j]] = pii(i, j);
-        }
-    }
-
-    sa(n);
-    while (n--) {
-        int x, y;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                sa(G[i][j]);
-                if (!G[i][j]) x = i, y = j;
+    int T;
+    getC();
+    sa(T);
+    for (int cas = 1; cas <= T; cas++) {
+        int n, m, k;
+        sa(n), sa(m), sa(k);
+        int ans = 0;
+        for (int i = 1; i < 16; i++) {
+            int r = n, c = m, cnt = 0;
+            if (i & 1) {
+                cnt++;
+                r--;
             }
-        }
-        ans = false;
-        int tt = star();
-        for (int i = tt; ; i++) {
-            dfs(i, x, y, pii(-1, -1), tt);
-            if (ans) {
-                pri(i);
-                break;
+            if (i & 2) {
+                cnt++;
+                c--;
             }
+            if (i & 4) {
+                cnt++;
+                r--;
+            }
+            if (i & 8) {
+                cnt++;
+                c--;
+            }
+            if (cnt % 2) ans = (C[r * c][k] + ans) % mod;
+            else ans = (ans - C[r * c][k] + mod) % mod;
         }
-
+        printf("Case %d: %d\n", cas, ((C[n * m][k] - ans) + mod) % mod);
     }
     return 0;
 }
