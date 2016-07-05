@@ -3,7 +3,17 @@
  *Created Time*  : 二  7/ 5 09:56:23 2016
 **Problem**:
 **Analyse**:
+对于每个点，二分它在哪个区域内。
+二分的时候需要利用到判断点在线的那一侧。
+这里要用到叉积（相对于点积）。
+$$(x_1, y_1) X (x_2, y_2) = x_1 * y_2 - x_2 * y_1$$
+$$AXB= -BXA=|A|*|B|*sin\theta= S_{菱形}$$
+叉积正负满足右手旋转定理。
+
+已知线段AB,和点C判断同异侧用ABXAC的正负来判断即可。
+
 **Get**:
+向量不具有位置性，当抽象出来作用极大。
 **Code**:
 ***********************1599664856@qq.com**********************/
 
@@ -108,10 +118,8 @@ int main(void)
         puts("Box");
         map<int, int>::iterator it;
         for (it = mp.begin(); it != mp.end(); it++) {
-            
             printf("%d: %d\n", it -> first, it -> second);
         }
     }
-
     return 0;
 }

@@ -1,15 +1,19 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 一  7/ 4 15:09:42 2016
+ *Created Time*  : 二  7/ 5 09:56:23 2016
 **Problem**:
 **Analyse**:
-把边从大到小排序，然后依次加边，直到1和n连通的最小边长即可。
-另一种思路：
-考虑dijkstra求最长路我们知道，这里求最大承重量也行。
-定义$d[i]$为从$1$到$i$的承重量，然后松弛操作是$d[j] = min(d[i], cost(i, j))$
-可以知道dijkstra的性质不受松弛操作的影响而影响，因为在路径长度中松弛操作通常会把值变大，而这里承重量是变小。
-可以说dijkstra只是提供了一种更新顺序，总是用最优的值去更新。
+对于每个点，二分它在哪个区域内。
+二分的时候需要利用到判断点在线的那一侧。
+这里要用到叉积（相对于点积）。
+$$(x_1, y_1) X (x_2, y_2) = x_1 * y_2 - x_2 * y_1$$
+$$AXB= -BXA=|A|*|B|*sin\theta= S_{菱形}$$
+叉积正负满足右手旋转定理。
+
+已知线段AB,和点C判断同异侧用ABXAC的正负来判断即可。
+
 **Get**:
+向量不具有位置性，当抽象出来作用极大。
 **Code**:
 ***********************1599664856@qq.com**********************/
 
@@ -41,42 +45,34 @@ typedef vector<int> vi;
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 1000 + 13;
-int par[maxn], rnk[maxn];
-
-struct edge {
-    int from, to, cost;
+const int maxn = 1e3 + 13;
+int n, m, a, b, c, d;
+struct vec{
+    int x, y;
+    vec(){}
+    vec(int X, int Y):x(X), y(Y){}
 };
 
+vec side[maxn], dot[maxn];
+int ans[maxn];
 
-void init(int n) {
-    for (int i = 1; i <= n; i++) {
-        par[i] = i;
-        rnk[i] = 0;
-    }
+int xj(vec a, vec b) {
+    return a.x * b.y - a.y * b.x;
 }
 
-int find(int x) {
-    if (x == par[x]) return x;
-    return find(par[x]);
+int judge(int mid, int x, int y) {
+    vec l = side[mid];
+    vec r = side[mid + 1];
+    int ansl = xj(vec(l.y - l.x, d - b), vec(x - l.x, y - b)), ansr = xj(vec(r.y - r.x, d - b), vec(x - r.x, y - b));
+    if (ansl < 0 && ansr < 0) return -1;
+    if (ansl > 0 && ansr < 0) return 0; 
+    if (ansr > 0 && ansl > 0) return 1;
+    return 0;
 }
 
-void unite(int x, int y) {
-    x = find(x), y = find(y);
-    if (x == y) return;
-    if (rnk[x] < rnk[y]) {
-        par[x] = y;
-    } else {
-        par[y] = x;
-        if (rnk[x] == rnk[y]) rnk[x]++;
-    }
+bool cmp(vec &a, vec &b) {
+    return min(a.x, a.y) < min(b.x, b.y);
 }
-
-bool same(int a, int b) {
-    return find(a) == find(b);
-}
-
-bool cmp(const edge &a ,const edge &b) { return a.cost > b.cost; }
 
 int main(void)
 {
@@ -84,28 +80,46 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    int T; sa(T);
-    for (int cas = 1; cas <= T; cas++) {
-        int n, m;
-        sa(n), sa(m);
-        vector<edge> v;
-        init(n);
-        for (int i = 0; i < m; i++) {
-            edge temp;
-            sa(temp.from), sa(temp.to), sa(temp.cost);
-            v.push_back(temp);
+    while (true) {
+        memset(ans, 0, sizeof(ans));
+        sa(n);
+        if (!n) break;
+        sa(m), sa(a), sa(b), sa(c), sa(d);
+        side[0] = vec(a, a);
+        for (int i = 1; i <= n; i++) {
+            int x, y;
+            sa(x), sa(y);
+            side[i].x = x;
+            side[i].y = y;
         }
-        sort(v.begin(), v.end(), cmp);
-        int ans = 0;
-        for (int i = 0; i < (int)v.size(); i++) {
-            unite(v[i].from, v[i].to);
-            if (same(1, n)) {
-                ans = v[i].cost;
-                break;
+        side[++n] = vec(c, c);
+        sort(side, side + n + 1, cmp);
+        while (m--) {
+            int x, y; sa(x), sa(y);
+            int l = 0, r = n - 1;
+            while (l < r) {
+                int mid = (l + r + 1) / 2;
+                int cur = judge(mid, x, y);
+                if (cur > 0) {
+                    l = mid + 1;
+                } else if (cur < 0) {
+                    r = mid - 1;
+                } else {
+                    l = mid;
+                    break;
+                }
             }
+            ans[l]++;
         }
-        printf("Scenario #%d:\n", cas);
-        printf("%d\n\n", ans);
+        map<int, int> mp;
+        for (int i = 0; i < n; i++) {
+           if (ans[i]) mp[ans[i]]++;
+        }
+        puts("Box");
+        map<int, int>::iterator it;
+        for (it = mp.begin(); it != mp.end(); it++) {
+            printf("%d: %d\n", it -> first, it -> second);
+        }
     }
     return 0;
 }

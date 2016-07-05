@@ -1,18 +1,15 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 一  7/ 4 21:30:53 2016
+ *Created Time*  : 一  7/ 4 15:09:42 2016
 **Problem**:
 **Analyse**:
-首先回去考虑正面算，但是发现情况太复杂，重合也太多。
-从反面来考虑。
-组合递推公式：$$C_n^m = C_{n-1}^m + C_{n-1}^{m-1}}$$
-在没有限制的时候的全集$U=C_n^k$，然后令:A表示不选第一行，.....,D表示不选第一列。
-求的结果就是:$$U - A \cup B \cup C \cup D$$
-其中并集并不能直接求得，我们可以利用集合的容斥原理把它分解为各种交集的代数和。
-用二进制枚举$15$中交集情况。（为什么不是16？这里0000为0不起作用)。
-
+把边从大到小排序，然后依次加边，直到1和n连通的最小边长即可。
+另一种思路：
+考虑dijkstra求最长路我们知道，这里求最大承重量也行。
+定义$d[i]$为从$1$到$i$的承重量，然后松弛操作是$d[j] = min(d[i], cost(i, j))$
+可以知道dijkstra的性质不受松弛操作的影响而影响，因为在路径长度中松弛操作通常会把值变大，而这里承重量是变小。
+可以说dijkstra只是提供了一种更新顺序，总是用最优的值去更新。
 **Get**:
-经典的集合容斥。概率和计数都容易出现的逆向思维。
 **Code**:
 ***********************1599664856@qq.com**********************/
 
@@ -43,20 +40,43 @@ typedef vector<int> vi;
 #define sal(n) scanf("%lld", &(n))
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
-const int mod = int(1e6) + 7, INF = 0x3f3f3f3f;
-const int maxn = 400 + 13;
-int C[maxn][maxn];
+const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
+const int maxn = 1000 + 13;
+int par[maxn], rnk[maxn];
 
-void getC(void) {
-    for (int i = 0; i <= 20 * 20; i++) C[i][0] = 1, C[i][i] = 1;
-    for (int i = 1; i <= 20 * 20; i++) {
-        for (int j = i - 1; j >= 1; j--) {
-            C[i][j] = (C[i - 1][j - 1] + C[i - 1][j]) % mod;
-        }
+struct edge {
+    int from, to, cost;
+};
+
+
+void init(int n) {
+    for (int i = 1; i <= n; i++) {
+        par[i] = i;
+        rnk[i] = 0;
     }
 }
 
+int find(int x) {
+    if (x == par[x]) return x;
+    return find(par[x]);
+}
 
+void unite(int x, int y) {
+    x = find(x), y = find(y);
+    if (x == y) return;
+    if (rnk[x] < rnk[y]) {
+        par[x] = y;
+    } else {
+        par[y] = x;
+        if (rnk[x] == rnk[y]) rnk[x]++;
+    }
+}
+
+bool same(int a, int b) {
+    return find(a) == find(b);
+}
+
+bool cmp(const edge &a ,const edge &b) { return a.cost > b.cost; }
 
 int main(void)
 {
@@ -64,35 +84,28 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    int T;
-    getC();
-    sa(T);
+    int T; sa(T);
     for (int cas = 1; cas <= T; cas++) {
-        int n, m, k;
-        sa(n), sa(m), sa(k);
-        int ans = 0;
-        for (int i = 1; i < 16; i++) {
-            int r = n, c = m, cnt = 0;
-            if (i & 1) {
-                cnt++;
-                r--;
-            }
-            if (i & 2) {
-                cnt++;
-                c--;
-            }
-            if (i & 4) {
-                cnt++;
-                r--;
-            }
-            if (i & 8) {
-                cnt++;
-                c--;
-            }
-            if (cnt % 2) ans = (C[r * c][k] + ans) % mod;
-            else ans = (ans - C[r * c][k] + mod) % mod;
+        int n, m;
+        sa(n), sa(m);
+        vector<edge> v;
+        init(n);
+        for (int i = 0; i < m; i++) {
+            edge temp;
+            sa(temp.from), sa(temp.to), sa(temp.cost);
+            v.push_back(temp);
         }
-        printf("Case %d: %d\n", cas, ((C[n * m][k] - ans) + mod) % mod);
+        sort(v.begin(), v.end(), cmp);
+        int ans = 0;
+        for (int i = 0; i < (int)v.size(); i++) {
+            unite(v[i].from, v[i].to);
+            if (same(1, n)) {
+                ans = v[i].cost;
+                break;
+            }
+        }
+        printf("Scenario #%d:\n", cas);
+        printf("%d\n\n", ans);
     }
     return 0;
 }
