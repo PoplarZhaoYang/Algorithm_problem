@@ -1,6 +1,6 @@
-/**
- 简单贪心一下就好了
- **/
+/***
+ 概率方程的dp
+ ****/
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -28,28 +28,33 @@ typedef vector<int> vi;
 #define sal(n) scanf("%lld", &(n))
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++)
-const int mod = 835672545, INF = 0x3f3f3f3f;
+const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
 const int maxn = 1e5 + 13;
-char s[maxn / 10], aim[maxn / 10];
+int gcd(int a, int b) {
+    if (!b) return a;
+    return gcd(b, a % b);
+}
 
 int main(void)
 {
-    while (~scanf("%s%s", s, aim)) {
-        int slen = strlen(s), alen = strlen(aim);
-        int k = 0;
-        if (slen < alen) {
-            k = alen - slen;
-            for (int i = 0; i < k; i++) {
-                printf("a %c\n", aim[i]);
-            }
-        } else if (slen > alen) {
-            k = slen - alen;
-            for (int i = 0; i < k; i++)  printf("d %c\n", s[i]);
-            k = 0;
+    int T;
+    cin >> T;
+    for (int cas = 1; cas <= T; cas++) {
+        int n, z = 0, f = 0, pz = 0, pf = 0;
+        cin >> n;
+        for (int i = 0; i < n; i++) {
+            int x;
+            cin >> x;
+            if (x > 0) pz++, z += x;
+            else pf++, f += -x;
         }
-        for (int i = k; i < alen; i++) {
-            printf("m %c\n", aim[i]);
-        }
+        int fz = z + f, fm = n - pf;
+        int g = gcd(fz, fm);
+       // pr(fz), pl(fm);
+        cout << "Case " << cas << ": ";
+        //cout <<　"Case " << cas << ": ";
+        if (pz == 0) cout << "inf" << endl;
+        else cout << fz / g << "/" << fm / g << endl;
     }
     return 0;
 }
