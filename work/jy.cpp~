@@ -1,14 +1,11 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 二  7/ 5 11:41:11 2016
+ *Created Time*  : 一  7/ 4 13:59:02 2016
 **Problem**:
 **Analyse**:
-因为$500x + 2y**这个公式的巨大偏向性，我们会优先满足时间。
-这样遍历整个任务，给任务安排机器。我们维护一个集合，集合里装的是所有还没有用的
-比能完成当前任务时间的机器，然后每次在里面选优先级能满足当前任务的最小的任务并从集合中删去就可。
-
+很明显这个题是固定的，所以需要预先打表。
 **Get**:
-想想法的时候不要先代码实现，先尽量抽象，会有更多思路.
+找规律递推就可以了。
 **Code**:
 ***********************1599664856@qq.com**********************/
 
@@ -41,14 +38,9 @@ typedef vector<int> vi;
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
 const int maxn = 1e5 + 13;
-struct node{
-    int x, y;
-}machine[maxn], mission[maxn];
+ll dp[maxn * 10];
 
-bool cmp(node &a, node &b) {
-    if (a.x == b.x) return a.y > b.y;
-    return a.x > b.x;
-}
+
 
 int main(void)
 {
@@ -56,32 +48,16 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    int n, m;
-    while (~scanf("%d%d", &n, &m)) {
-        for (int i = 0; i < n; i++) sa(machine[i].x), sa(machine[i].y);
-        for (int i = 0; i < m; i++) sa(mission[i].x), sa(mission[i].y);
-        sort(machine, machine + n, cmp);
-        sort(mission, mission + m, cmp);
-
-        map<int, int> mp;
-        map<int, int>::iterator it;
-        int p = 0;
-        int ans = 0; ll money = 0;
-        for (int i = 0; i < m; i++) {
-            while (p < n && machine[p].x >= mission[i].x) {
-                mp[machine[p].y]++;
-                p++;
-            }
-            it = mp.lower_bound(mission[i].y);
-            if (it != mp.end()) {
-                ans++;
-                money += mission[i].x * 500 + mission[i].y * 2;
-                if (it -> second == 1) mp.erase(it);
-                else (it -> second)--;
-            }
-        }
-    //    printf("%d %I64d\n", ans, money);
-        cout << ans << " " << money << endl;
+    int n;
+    dp[3] = 0;
+    for (int i = 4; i <= 1000000 ; i++) {
+        dp[i] = dp[i - 1];
+        ll k = i - 3;
+        ll t = (k + 1) / 2;
+        dp[i] += k * t + t - t * t;
+    }
+    while (sa(n), n > 2) {
+        printf("%lld\n", dp[n]);
     }
     return 0;
 }
