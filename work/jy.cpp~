@@ -1,6 +1,6 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 三  7/ 6 09:14:58 2016
+ *Created Time*  : 三  7/ 6 09:46:52 2016
 **Problem**:
 **Analyse**:
 **Get**:
@@ -36,8 +36,7 @@ typedef vector<int> vi;
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
 const int maxn = 1e5 + 13;
-bool dp[510][510][510];
-
+int A[1111];
 
 
 int main(void)
@@ -46,27 +45,31 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    int n, k;
-    sa(n), sa(k);
-    dp[0][0][0] = true;
-    for (int i = 1; i <= n; i++) {
-        int c; sa(c);
-        for (int j = 0; j <= k; j++) {
-            for (int t = 0; t <= k; t++) {
-                dp[i][j][t] |= dp[i - 1][j][t];
-                if (t - c >= 0) dp[i][j][t] |= dp[i - 1][j][t - c];
-                if (j - c >= 0) dp[i][j][t] |= dp[i - 1][j - c][t];
+    int T;
+    sa(T);
+    while (T--) {
+        int n; sa(n);
+        if (!n) {
+            pri(0);
+            continue;
+        }
+        for (int i = 0; i < n; i++) sa(A[i]);
+        sort(A, A + n);
+        int a = A[0], b =A[1];
+        if (n == 1) pri(a);
+        else if (n == 2)  pri(max(a, b));
+        else {
+            int k = n - 2, ans = 0;
+            while (k > 1) {
+                ans += a + 2 * b + A[k + 1];
+                k -= 2;
             }
+            if (k) {
+                ans += a + b + A[k + 1];
+            } else ans += max(a, b);
+            pri(ans);
         }
     }
-    vector<int> V;
-    for (int i = 0; i <= k; i++) {
-        if (dp[n][i][k - i]) V.push_back(i);
-    }
-    pri(V.size());
-    for (int i = 0; i < (int)V.size(); i++) {
-        printf("%d ", V[i]);
-    }
-    puts("");
+    
     return 0;
 }
