@@ -1,6 +1,6 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 三  7/ 6 09:46:52 2016
+ *Created Time*  : 三  7/ 6 10:20:37 2016
 **Problem**:
 **Analyse**:
 **Get**:
@@ -35,8 +35,11 @@ typedef vector<int> vi;
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 1e5 + 13;
-int A[1111];
+const int maxn = 2e5 + 13;
+int n, m;
+int A[maxn];
+pii B[maxn];
+
 
 
 int main(void)
@@ -45,31 +48,38 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    int T;
-    sa(T);
-    while (T--) {
-        int n; sa(n);
-        if (!n) {
-            pri(0);
-            continue;
-        }
-        for (int i = 0; i < n; i++) sa(A[i]);
-        sort(A, A + n);
-        int a = A[0], b =A[1];
-        if (n == 1) pri(a);
-        else if (n == 2)  pri(max(a, b));
-        else {
-            int k = n - 2, ans = 0;
-            while (k > 1) {
-                ans += a + 2 * b + A[k + 1];
-                k -= 2;
+    while (~scanf("%d%d", &n, &m)) {
+        int cnt = -1;
+        for (int i = 1; i <= n; i++) {
+            int x; sa(x);
+            if (cnt == -1 || x != B[cnt].yy) {
+                if (cnt != -1) B[cnt].xx = i - 1;
+                A[++cnt] = i;
+                B[cnt].yy = x;
             }
-            if (k) {
-                ans += a + b + A[k + 1];
-            } else ans += max(a, b);
-            pri(ans);
+        }
+        B[cnt].xx = n;
+        while (m--) {
+            int l, r, x; sa(l), sa(r), sa(x);
+            int t = lower_bound(A, A + cnt + 1, l) - A;
+            //pr(A[t]), pr(B[t].xx), pl(B[t].yy);
+            if (l > A[cnt]) {
+                pri(x == B[cnt].yy ? -1 : l);
+            } else if (A[t] > r) {
+                pri(B[t - 1].yy == x ? -1 : r);
+            } else {
+                if (A[t] == l) {
+                    if (t + 1 > cnt) pri(B[t].yy == x ? -1 : l);
+                    else {
+                        if (r >= A[t + 1]) {
+                            pri(x == B[t].yy ? A[t + 1] : l);
+                        } else pri(B[t].yy == x ? -1 : l);
+                    }
+                } else {
+                    pri(B[t].yy == x ? l : r);
+                }
+            }
         }
     }
-    
     return 0;
 }
