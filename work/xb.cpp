@@ -1,185 +1,72 @@
-/**********************jibancanyang**************************
- *Author*        :jibancanyang
- *Created Time*  : 五  5/ 6 16:14:59 2016
- *File Name*     : jy.cpp
-**Problem**:
-**Analyse**:
-此题难就难在编码,还有题意问的是病毒有多少种不是多少个,注意char已经不能表示解码之后的字符,要用
-256的int来表示.
-**Code**:
-***********************1599664856@qq.com**********************/
-
-#include <cstdio>
-#include <cstring>
 #include <iostream>
-#include <algorithm>
-#include <vector>
-#include <queue>
-#include <set>
-#include <map>
-#include <string>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <stack>
+#include <cstring>
+#include <cstdio>
+
 using namespace std;
-typedef pair<int, int> pii;
-typedef long long ll;
-typedef unsigned long long ull;
-vector<int> vi;
-#define pr(x) cout << #x << ": " << x << "  " 
-#define pl(x) cout << #x << ": " << x << endl;
-#define pri(a) printf("%d\n",(a));
-#define xx first
-#define yy second
-#define sa(n) scanf("%d", &(n))
-#define sal(n) scanf("%lld", &(n))
-#define sai(n) scanf("%I64d", &(n))
-#define rep(i, a, n) for (int i = a; i < n; i++)
-#define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
-const int mod = int(1e9) + 7, INF = 0x3fffffff;
 
-const int maxn = 100000 + 13;
-const int maxtrie = 520 * 90 + 12; //注意这里为最多500个单词,每个单词最多500个字母,所以节点最多为乘
-const int maxcharset = 256; //字符集合
-const char charst = 0; //起始字符
-int buf[maxn];
-int bufcnt;
+int dp[(1<<21)+10][9];
+int g,b,s;
+int v[25][10];
+int a[10];
 
-
-char base64[maxn];
-int bitcnt;
-bool bit[maxn * 10];
-
-int getv(char x) {
-    if (islower(x)) return x - 'a' + 26;
-    else if (isupper(x)) return x - 'A';
-    else if (isdigit(x)) return x - '0' + 52;
-    else return (x == '+' ? 62 : 63);
-}
-
-void pb(int x) {
-    for (int i = 5; i >= 0; i--) {
-        if (x >> i & 1) bit[bitcnt++] = 1;
-        else bit[bitcnt++] = 0;
-    }
-}
-
-void tobit(char c) {
-    int temp = getv(c);
-    pb(temp);
-}
-
-void decode(void) {
-    bufcnt = bitcnt = 0;
-    int len = (int)strlen(base64);
-    for (int i = 0; i < len; i++) {
-        if (base64[i] == '=') bitcnt -= 2;
-        else tobit(base64[i]);
-    }
-    for (int i = 0; i < bitcnt; i += 8) {
-        int temp = 0;
-        for (int j = i; j < i + 8; j++) {
-            if (bit[j]) temp += 1 << (7 - (j - i));
-        }
-        buf[bufcnt++] = temp;
-    }
-}
-
-bool used[523];
-
-struct Trie
+int max(int a,int b)
 {
-    int next[maxtrie][maxcharset], fail[maxtrie], end[maxtrie];
-    int root, L;
-    int newnode(void) {
-        for (int i = 0;i < maxcharset;i++) next[L][i] = -1;
-        end[L++] = -1;
-        return L - 1;
-    }
-    void init(void) {
-        L = 0;
-        root = newnode();
-    }
-    void insert(int buf[], int id) {
-        int len = bufcnt;
-        int now = root;
-        for(int i = 0;i < len;i++) {
-            if(next[now][buf[i] - charst] == -1)
-                next[now][buf[i] - charst] = newnode();
-            now = next[now][buf[i] - charst];
-        }
-        end[now] = id; 
-    }
-    void build(void) {
-        queue<int> Q;
-        fail[root] = root;
-        for(int i = 0;i < maxcharset;i++)
-            if(next[root][i] == -1) next[root][i] = root;
-            else {
-                fail[next[root][i]] = root;
-                Q.push(next[root][i]);
-            }
-        while (!Q.empty())  {
-            int now = Q.front(); Q.pop();
-            for(int i = 0;i < maxcharset;i++)
-                if(next[now][i] == -1) next[now][i] = next[fail[now]][i];
-                else {
-                    fail[next[now][i]]=next[fail[now]][i];
-                    Q.push(next[now][i]);
-                }
-        }
-    }
-    int query(int buf[])
+    return a>b?a:b;
+}
+
+int main()
+{
+    freopen("in.txt", "r", stdin);
+    while (scanf("%d%d%d",&g,&b,&s)&&g+b+s)
     {
-        int len = bufcnt, now = root, ret = 0;
-
-        for(int i = 0;i < len;i++) {
-            now = next[now][buf[i] - charst];
-            int temp = now;
-            while(temp != root) {
-                if (end[temp] != -1 && !used[end[temp]]) {
-                    ret += 1;
-                    used[end[temp]] = true;
-                }
-                temp = fail[temp];
+        memset(v,0,sizeof(v));
+        memset(a,0,sizeof(a));
+        int sum=0;
+        for (int i=0;i<b;i++)
+        {
+            int n;
+            scanf("%d",&n);
+            while (n--)
+            {
+                int a1;
+                scanf("%d",&a1);
+                v[i][a1]++;
+                a[a1]++;
+                sum+=a[a1]/s;
+                a[a1]%=s;
             }
         }
-        return ret;
-    }
-}ac;
-
-
-
-
-int main(void)
-{
-#ifdef LOCAL
-    freopen("/Users/zhaoyang/in.txt", "r", stdin);
-    //freopen("/Users/zhaoyang/out.txt", "w", stdout);
-#endif
-    //ios_base::sync_with_stdio(false),cin.tie(0),cout.tie(0);
-    int n, m;
-    while (~sa(n)) {
-        ac.init();
-        for (int i = 0; i < n; i++) {
-            scanf("%s", base64);
-            decode();
-            //for (int i = 0; i < bufcnt; i++) cout << (char)buf[i] << " ";
-            //cout << endl;
-            ac.insert(buf, i);
+        int mm=(1<<b)-1;
+        for (int i=1;i<=g;i++)
+            dp[0][i]=a[i];      //全部取完炉子的状态
+        dp[0][0]=0;
+        for (int i=1;i<=mm;i++)
+            dp[i][0]=-1000000;
+        for (int i=0;i<=mm;i++)
+        {
+            for (int j=0;j<b;j++)
+            {
+                int x=(1<<j);
+                if ((i&x)==0)   //如果j取过了
+                {
+                    int gs=0;
+                    for (int k=1;k<=g;k++)  //从没取j到取j总过得到多少宝石
+                    {
+                        a[k]=dp[i][k]-v[j][k];
+                        while (a[k]<0)  //说明取的时候获得了宝石
+                        {
+                            gs++;
+                            a[k]+=s;
+                        }
+                        dp[i^x][k]=a[k];
+                    }
+                    if (gs>0)   //如果大于0，不换手，先手+gs-后手=gs+dp[i][0]
+                        dp[i^x][0]=max(dp[i^x][0],gs+dp[i][0]);
+                    else    //换手，新得到的分数等于0，原来的先手-后手变成后手-先手，取负即可
+                        dp[i^x][0]=max(dp[i^x][0],-dp[i][0]);
+                }
+            }
         }
-        sa(m);
-        ac.build();
-        for (int i = 0; i < m; i++) {
-            scanf("%s", base64);
-            decode();
-            memset(used, 0, sizeof(used));
-            //for (int i = 0; i < bufcnt; i++) cout << (char)buf[i] << " ";
-            //cout << endl;
-            pri(ac.query(buf));
-        }
-        puts("");
+        printf("%d\n",dp[mm][0]);
     }
-    return 0;
 }
