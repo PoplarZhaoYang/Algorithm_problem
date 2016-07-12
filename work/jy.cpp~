@@ -1,6 +1,6 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 一  7/11 21:49:09 2016
+ *Created Time*  : 二  7/12 11:18:47 2016
 **Problem**:
 **Analyse**:
 **Get**:
@@ -35,12 +35,48 @@ typedef vector<int> vi;
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 1e5 + 13;
-int G, B, S;
-int bag[22][11];
-int dp[1 << 21][11];
+const int maxn = 2e5 + 13;
 
+struct node {
+    int l, r, num;
+}query[maxn];
 
+int A[maxn], bit[maxn], l[maxn], r[maxn], ans[maxn], vis[maxn];
+int n, m;
+
+void add(int i, int x) {
+    while (i > 0) {
+        bit[i] += x;
+        i -= i & -i;
+    }
+}
+
+int sum(int i) {
+    int ret = 0;
+    while (i <= n) {
+        ret += bit[i];
+        i += i & -i;
+    }
+    return ret;
+}
+
+vector<int> vec[maxn], edge[maxn];
+
+bool cmp(node &a, node &b) {
+    return a.l < b.l;
+}
+
+int prime[maxn / 10], cn = 0;
+bool isprime[maxn];
+
+void getprime(void) {
+    for (int i = 2; i < maxn; i++) {
+        if (!isprime[i]) {
+            prime[cn++] = i;
+            for (int j = i; j < maxn; j += i) isprime[j] = true;
+        }
+    }
+}
 
 int main(void)
 {
@@ -48,45 +84,63 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    while (sa(G), sa(B), sa(S), G || B || S) {
-        int a[11], maxs = (1 << B) - 1;
-        memset(bag, 0, sizeof(bag));
-        memset(a, 0, sizeof(a));
-        for (int i = 0; i < B; i++) {
-            int n; sa(n);
-            while (n--) {
-                int x; sa(x);
-                bag[i][x]++;
-                a[x]++;
-                a[x] %= S;
-            }
+    getprime();
+    for (int i = 0; i < cn; i++) {
+        for (int j = prime[i]; j < maxn; j += prime[i]) {
+            vec[j].push_back(prime[i]);
         }
-        dp[0][0] = 0;
-        for (int i = 1; i <= G; i++) dp[0][i] = a[i];
-        for (int i = 1; i <= maxs; i++) dp[i][0] = -INF;
-        for (int i = 0; i < maxs; i++) {
-            for (int j = 0; j < B; j++) {
-                int t = (1 << j);
-                if (i & t) ;
-                else {
-                    int ruby = 0;
-                    for (int k = 1; k <= G; k++) {
-                        a[k] = dp[i][k] - bag[j][k];
-                        while (a[k] < 0) {
-                            a[k] += S;
-                            ruby++;
-                        }
-                        dp[i ^ t][k] = a[k];
-                    }
-                    if (ruby > 0) {
-                        dp[i ^ t][0] = max(dp[i ^ t][0], ruby + dp[i][0]);
-                    } else {
-                        dp[i ^ t][0] = max(dp[i ^ t][0], -dp[i][0]);
-                    }
-                }
-            }
-        }
-        pri(dp[maxs][0]);
     }
+    while (sa(n), sa(m), n || m) {
+        for (int i = 1; i <= n; i++) sa(A[i]);
+        memset(vis, 0, sizeof(vis));
+        for (int i = 1; i <= n; i++) {
+            int t = 0;
+            for (int j = 0; j < (int)vec[A[i]].size(); j++) {
+                t = max(vis[vec[A[i]][j]], t);
+                vis[vec[A[i]][j]] = i;
+            }
+            l[i] = t;
+        }
+        memset(vis, 0x3f, sizeof(vis));
+        for (int i = n; i >= 1; i--) {
+            int t = n + 1;
+            for (int j = 0; j < (int)vec[A[i]].size(); j++) {
+                t = min(t, vis[vec[A[i]][j]]);
+                vis[vec[A[i]][j]] = i;
+            }
+            r[i] = t;
+        }
+
+        memset(bit, 0, sizeof(bit));
+        for (int i = 1; i <= n; i++) {
+            if (l[i]) edge[l[i]].push_back(i);
+            else {
+                add(i, 1);
+                if (r[i] <= n) add(r[i], -1);
+            }
+        }
+        for (int i = 1; i <= m; i++) {
+            sa(query[i].l), sa(query[i].r), query[i].num = i;
+        }
+        sort(query + 1, query + m + 1, cmp);
+        int cnt = 1;
+        query[m + 1].l = -1;
+        for (int i = 1; i <= n; i++) {
+            while (query[cnt].l == i) {
+                ans[query[cnt].num] = sum(query[cnt].l) - sum(query[cnt].r + 1);
+                cnt++;
+            }
+            add(i, -1);
+            if (r[i] <= n) add(r[i], 1);
+            for (int j = 0; j < (int)edge[i].size(); j++) {
+                int x = edge[i][j];
+                add(x, 1);
+                if (r[x] <= n) add(r[x], -1);
+            }
+            edge[i].clear();
+        }
+        for (int i = 1; i <= m; i++) pri(ans[i]);
+    }
+    
     return 0;
 }
