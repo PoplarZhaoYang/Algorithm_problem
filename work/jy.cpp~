@@ -1,6 +1,6 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 二  7/12 11:18:47 2016
+ *Created Time*  : 二  7/12 15:23:29 2016
 **Problem**:
 **Analyse**:
 **Get**:
@@ -35,48 +35,106 @@ typedef vector<int> vi;
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 2e5 + 13;
-
-struct node {
-    int l, r, num;
-}query[maxn];
-
-int A[maxn], bit[maxn], l[maxn], r[maxn], ans[maxn], vis[maxn];
+const int maxn = 1e5 + 13;
 int n, m;
 
-void add(int i, int x) {
-    while (i > 0) {
-        bit[i] += x;
-        i -= i & -i;
+struct tree {
+    int to; 
+    ll cost;
+    tree(){}
+    tree(int a, ll b):to(a), cost(b){}
+};
+
+struct node {
+    int size;
+    node *son[2];
+    node(): size(0) { son[0] = NULL, son[1] = NULL; } 
+}* root;
+
+struct dot {
+    ll v;
+    int x, k;
+    dot(){}
+    dot(ll V, int X, int K): v(V), x(X), k(K){}
+};
+
+vector<tree> G[maxn];
+ll xors[maxn];
+ll ans[maxn * 2];
+int query[maxn];
+
+void dfs(int cur, ll x) {
+    xors[cur] = x;
+    for (int i = 0; i < (int)G[cur].size(); i++) {
+        tree nxt = G[cur][i];
+        if (xors[nxt.to] == -1) dfs(nxt.to, x ^ nxt.cost);
     }
 }
 
-int sum(int i) {
-    int ret = 0;
-    while (i <= n) {
-        ret += bit[i];
-        i += i & -i;
+void add(ll x) {
+    node *cur = root;
+    for (int i = 63; i >= 0; i--) {
+        if (x >> i & 1) {
+            if (cur -> son[1] == NULL) cur -> son[1] = new node;
+            cur = cur -> son[1];
+        } else {
+            if (cur -> son[0] == NULL) cur -> son[0] = new node;
+            cur = cur -> son[0];
+        }
+        (cur -> size)++;
     }
+}
+
+void destroy(node *cur) {
+    if (cur -> son[0]) destroy(cur -> son[0]);
+    if (cur -> son[1]) destroy(cur -> son[1]);
+    delete cur;
+}
+
+class cmp
+{
+public:
+    bool operator()(dot &a, dot &b) {
+        return a.v < b.v;
+    }
+};
+
+ll search(ll x, int k) {
+    //int t = k;
+    node *cur = root;
+    if (k > n - 1) return -1;
+    ll ans = 0;
+    for (int i = 63; i >= 0; i--) {
+        if (x >> i & 1) {
+            if (cur -> son[0]) {
+                int t = cur -> son[0] -> size;
+                if (t >= k) cur = cur -> son[0];
+                else  {
+                    k -= t;
+                    cur = cur -> son[1];
+                    ans |= (1ll << i);
+                }
+            } else {
+                cur = cur -> son[1];
+                ans |= (1ll << i);
+            }
+        } else {
+            if (cur -> son[1]) {
+                int t = cur -> son[1] -> size;
+                if (t >= k) cur = cur -> son[1], ans |= (1ll << i);
+                else {
+                    k -= t;
+                    cur = cur -> son[0];
+                } 
+            } else {
+                cur = cur -> son[0];
+            }
+        }
+    }
+    ll ret = x ^ ans;
     return ret;
 }
 
-vector<int> vec[maxn], edge[maxn];
-
-bool cmp(node &a, node &b) {
-    return a.l < b.l;
-}
-
-int prime[maxn / 10], cn = 0;
-bool isprime[maxn];
-
-void getprime(void) {
-    for (int i = 2; i < maxn; i++) {
-        if (!isprime[i]) {
-            prime[cn++] = i;
-            for (int j = i; j < maxn; j += i) isprime[j] = true;
-        }
-    }
-}
 
 int main(void)
 {
@@ -84,62 +142,41 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    getprime();
-    for (int i = 0; i < cn; i++) {
-        for (int j = prime[i]; j < maxn; j += prime[i]) {
-            vec[j].push_back(prime[i]);
+    while (sa(n), n) {
+        for (int i = 1; i <= n; i++) G[i].clear();
+        for (int i = 0; i < n - 1; i++) {
+            int x, y; ll z;
+            sa(x), sa(y),sai(z);
+            G[x].push_back(tree(y, z));
+            G[y].push_back(tree(x, z));
         }
-    }
-    while (sa(n), sa(m), n || m) {
-        for (int i = 1; i <= n; i++) sa(A[i]);
-        memset(vis, 0, sizeof(vis));
-        for (int i = 1; i <= n; i++) {
-            int t = 0;
-            for (int j = 0; j < (int)vec[A[i]].size(); j++) {
-                t = max(vis[vec[A[i]][j]], t);
-                vis[vec[A[i]][j]] = i;
-            }
-            l[i] = t;
-        }
-        memset(vis, 0x3f, sizeof(vis));
-        for (int i = n; i >= 1; i--) {
-            int t = n + 1;
-            for (int j = 0; j < (int)vec[A[i]].size(); j++) {
-                t = min(t, vis[vec[A[i]][j]]);
-                vis[vec[A[i]][j]] = i;
-            }
-            r[i] = t;
-        }
-
-        memset(bit, 0, sizeof(bit));
-        for (int i = 1; i <= n; i++) {
-            if (l[i]) edge[l[i]].push_back(i);
-            else {
-                add(i, 1);
-                if (r[i] <= n) add(r[i], -1);
-            }
-        }
-        for (int i = 1; i <= m; i++) {
-            sa(query[i].l), sa(query[i].r), query[i].num = i;
-        }
-        sort(query + 1, query + m + 1, cmp);
+        memset(xors, -1, sizeof(xors));
+        memset(ans, -1, sizeof(ans));
+        dfs(1, 0);
+        root = new node;
+        for (int i = 1; i <= n; i++) add(xors[i]);
+        priority_queue<dot, vector<dot>, cmp> que;
+        sa(m);
+        int maxq = 0;
+        for (int i = 0; i < m; i++) sa(query[i]), maxq = max(maxq, query[i]);
+        ll k = (ll)n * (n - 1);
+        for (int i = 1; i <= n; i++) que.push(dot(search(xors[i], 1), i, 1));
         int cnt = 1;
-        query[m + 1].l = -1;
-        for (int i = 1; i <= n; i++) {
-            while (query[cnt].l == i) {
-                ans[query[cnt].num] = sum(query[cnt].l) - sum(query[cnt].r + 1);
-                cnt++;
+        for (; maxq > 0 && k > 0 && !que.empty(); k--, maxq--) {
+            ans[cnt++] = que.top().v;
+            dot cur = que.top(); que.pop();
+            ll temp = search(xors[cur.x], cur.k + 1);
+            if (temp != -1) {
+                que.push(dot(temp, cur.x, cur.k + 1));
             }
-            add(i, -1);
-            if (r[i] <= n) add(r[i], 1);
-            for (int j = 0; j < (int)edge[i].size(); j++) {
-                int x = edge[i][j];
-                add(x, 1);
-                if (r[x] <= n) add(r[x], -1);
-            }
-            edge[i].clear();
         }
-        for (int i = 1; i <= m; i++) pri(ans[i]);
+     //   for (int i = 1; i <= n *(n - 1); i++) pr(i), pl(ans[i]);
+
+        for (int i = 0; i < m; i++) {
+            //cout << ans[query[i]] << endl;
+            printf("%I64d\n", ans[query[i]]);
+        }
+        destroy(root);
     }
     
     return 0;
