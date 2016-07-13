@@ -1,13 +1,9 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 三  7/13 15:22:59 2016
+ *Created Time*  : 三  7/13 16:36:15 2016
 **Problem**:
-最大化平均值，限制是选k个物品。
 **Analyse**:
-平均值的式子具有特殊性很容易去贪心地判断平均值是否大于一个数。
-复杂度$nlog^nlog{10^12}}$
 **Get**:
-这题很容易去想dp，但是显然复杂度太高。看数据范围应该是$nlogn$这样的算法。
 **Code**:
 ***********************1599664856@qq.com**********************/
 
@@ -39,25 +35,12 @@ typedef vector<int> vi;
 #define sai(n) scanf("%I64d", &(n))
 #define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 1e5 + 13;
-int n, k;
-struct pi {
-    int xx, yy, num;
-}V[maxn];
-double temp;
+const int maxn = 10;
+int n, m, cur;
+ll d[2][1 << maxn];
 
-bool cmp(const pi &a, const pi &b) {
-    return a.xx - a.yy * temp > b.xx - b.yy * temp;
-}
-
-bool judge(double t) {
-    temp = t;
-    sort(V, V + n, cmp);
-    temp = 0;
-    for (int i = 0; i < k; i++) {
-        temp += V[i].xx - V[i].yy * t;
-    }
-    return temp >= 0;
+void update(int a, int b) {
+    if (b & (1 << m)) d[cur][b ^ (1 << m)] += d[1 - cur][a];
 }
 
 int main(void)
@@ -66,21 +49,24 @@ int main(void)
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    while (~scanf("%d%d", &n, &k)) {
+    while (~scanf("%d%d", &n, &m)) {
+        if (n < m) swap(n, m);
+        memset(d, 0, sizeof(d));
+        d[0][(1 << m) - 1] = 1;
+        cur = 0;
         for (int i = 0; i < n; i++) {
-            sa(V[i].xx),  sa(V[i].yy), V[i].num = i + 1;
+            for (int j = 0; j < m; j++) {
+                cur ^= 1;
+                memset(d[cur], 0, sizeof(d[cur]));
+                for (int k = 0; k < (1 << m); k++) {
+                    update(k, k << 1);
+                    if (i && !(k & (1 << (m - 1)))) update(k, (k << 1) ^ 1 ^ (1 << m));
+                    if (j && !(k & 1)) update(k, (k << 1) ^ 3); 
+                }
+                
+            }
         }
-        double l = 0, r = 1e12;
-        for (int i = 0; i < 150; i++) {
-            double mid = (l + r) / 2;
-            if (judge(mid)) {
-                l = mid;
-            } else r = mid - 1e-9;
-        }
-        for (int i = 0; i < k; i++) {
-            printf("%d ", V[i].num);
-        }
-        puts("");
+        printf("%lld\n", d[cur][(1 << m) - 1]);
     }
     return 0;
 }
