@@ -1,45 +1,74 @@
-/***
- 经典题了，现在自习想一下，想走了，然后再去选择最好加的油，并且最好加的油用一个平衡树这样的
- 数据结构维护算是比较经典的数据结构贪心了
- 前面碰到的用map维护的也是，先走，等到要选的时候选择满足什么条件什么最小的即可。
- ***/
-#include <cstdio>
-#include <iostream>
-#include <cstring>
-#include <algorithm>
-#include <queue>
-using namespace std;
-const int M = 10009, INF = 0x3fffffff;
-int a[M], n, L, P;
-pair<int, int> c[M];
+/**********************jibancanyang**************************
+ *Author*        :jibancanyang
+ *Created Time*  : 四  7/14 11:45:57 2016
+**Problem**:
+**Analyse**:
+**Get**:
+**Code**:
+***********************1599664856@qq.com**********************/
 
-int main(void) {
-    while(~scanf("%d", &n)) {
-        for(int i = 1; i <= n; i++) scanf("%d%d", &c[n - i + 1].first, &c[n - i + 1].second);
-        scanf("%d%d", &L, &P);
-        for(int i = 1; i <= n; i++) c[i].first = L - c[i].first;
-        sort(c + 1, c + n +1);
-        a[n + 1] = L - c[n].first;
-        for(int i = 1; i <= n; i++) {
-            if(i != 1) a[i] = c[i].first - c[i - 1].first;
-            else a[i] = c[i].first;
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <queue>
+#include <set>
+#include <map>
+#include <string>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <stack>
+using namespace std;
+typedef pair<int, int> pii;
+typedef long long ll;
+typedef unsigned long long ull;
+typedef vector<int> vi;
+#define pr(x) cout << #x << ": " << x << "  " 
+#define pl(x) cout << #x << ": " << x << endl;
+#define pri(a) printf("%d\n",(a))
+#define xx first
+#define yy second
+#define sa(n) scanf("%d", &(n))
+#define sal(n) scanf("%lld", &(n))
+#define sai(n) scanf("%I64d", &(n))
+#define vep(c) for (decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
+const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
+const int maxn = 1e5 + 13;
+
+
+int main(void)
+{
+#ifdef LOCAL
+    freopen("in.txt", "r", stdin);
+#endif
+	int n, k;
+	while (~sa(n)) {
+        if (n % 4 == 2 || n % 4 == 3) {
+            pri(0);
+            continue;
         }
-        priority_queue<int> pq;
-        int ans = 0, ok = 1;
-        for(int i = 1; i <= n + 1; i++) {
-            if(P - a[i] < 0) {
-                if(pq.empty()) {ok = 0; puts("-1"); break;}
-                while(P - a[i] < 0 && !pq.empty()) {
-                    P += pq.top();
-                    pq.pop();
-                    ans++;
-                }
-                if(P - a[i] < 0 && pq.empty()) {ok = 0; puts("-1"); break;}
-            }
-            pq.push(c[i].second);
-            P -= a[i];
+		if (n % 4 == 0) {
+			k = n / 4;
+            printf("%d ", 2 *k + 1);
+            for (int i=4*k; i>=3*k+2;i--) printf("%d ",i);
+            for (int i=3*k; i>=2*k+2;i--) printf("%d ",i);
+            for (int i=2*k; i>=k+1;i--) printf("%d ",i);
+            printf("%d ", 3* k + 1); 
+            //(3 *k + 1);
+            for (int i=k;i>=1;i--) printf("%d ",i);
+        } else {
+            k = (n - 1) / 4; printf("%d ", 4 *k + 1);
+            for (int i=4*k; i>=3*k+2; i--) printf("%d ",i);
+            for (int i=3*k; i>=2*k+2;i--) printf("%d ",i);
+            for (int i=2*k; i>=k+1;i--) printf("%d ",i);
+            if (k)
+                printf("%d ", 3* k + 1); 
+            for (int i=k;i>=1;i--) printf("%d ",i);
+            if(k) printf("%d ",2*k+1);
         }
-        if(ok) printf("%d\n", ans);
+        puts("");
     }
     return 0;
 }
