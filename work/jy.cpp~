@@ -1,76 +1,40 @@
-/**********************jibancanyang**************************
- *Author*        :jibancanyang
- *Created Time*  : 三  7/13 17:17:20 2016
-**Problem**:
-**Analyse**:
-**Get**:
-**Code**:
-***********************1599664856@qq.com**********************/
-
 #include <cstdio>
-#include <cstring>
 #include <iostream>
+#include <cstring>
 #include <algorithm>
-#include <vector>
 #include <queue>
-#include <set>
-#include <map>
-#include <string>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <stack>
 using namespace std;
-typedef pair<int, int> pii;
-typedef long long ll;
-typedef unsigned long long ull;
-typedef vector<int> vi;
-#define pr(x) cout << #x << ": " << x << "  " 
-#define pl(x) cout << #x << ": " << x << endl;
-#define pri(a) printf("%d\n",(a))
-#define xx first
-#define yy second
-#define sa(n) scanf("%d", &(n))
-#define sal(n) scanf("%lld", &(n))
-#define sai(n) scanf("%I64d", &(n))
-#define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
-const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
-const int maxn = 1e5 + 13;
-int A[maxn];
-int n;
-ll k;
+const int M = 10009, INF = 0x3fffffff;
+int a[M], n, L, P;
+pair<int, int> c[M];
 
-bool judge(int mid) {
-    ll low = 0;
-    for (int i = 0; i < n; i++) {
-        int t = (lower_bound(A + i, A + n, mid + A[i]) - (A + i));
-        t--;
-        //pr(i), pl(t);
-        low += t;
-    }
-    return low < k;
-}
-
-int main(void)
-{
-#ifdef LOCAL
-    freopen("in.txt", "r", stdin);
-    //freopen("out.txt", "w", stdout);
-#endif
-    while (~sa(n)) {
-        for (int i = 0; i < n; i++) sa(A[i]);
-        sort(A, A + n);
-        ll l = 0, r = int(2e9);
-        k = ((ll(n) * (n - 1)) / 2 + 1) / 2;
-        while (l < r) {
-            ll mid = (l + r + 1) / 2;
-        //    pr(l), pr(r), pl(mid);
-            if (judge(mid)) {
-                l = mid;
-            } else r  = mid - 1;
+int main(void) {
+    while(~scanf("%d", &n)) {
+        for(int i = 1; i <= n; i++) scanf("%d%d", &c[n - i + 1].first, &c[n - i + 1].second);
+        scanf("%d%d", &L, &P);
+        for(int i = 1; i <= n; i++) c[i].first = L - c[i].first;
+        sort(c + 1, c + n +1);
+        a[n + 1] = L - c[n].first;
+        for(int i = 1; i <= n; i++) {
+            if(i != 1) a[i] = c[i].first - c[i - 1].first;
+            else a[i] = c[i].first;
         }
-        printf("%lld\n", l);
+        priority_queue<int> pq;
+        int ans = 0, ok = 1;
+        for(int i = 1; i <= n + 1; i++) {
+            if(P - a[i] < 0) {
+                if(pq.empty()) {ok = 0; puts("-1"); break;}
+                while(P - a[i] < 0 && !pq.empty()) {
+                    P += pq.top();
+                    pq.pop();
+                    ans++;
+                }
+                if(P - a[i] < 0 && pq.empty()) {ok = 0; puts("-1"); break;}
+            }
+            pq.push(c[i].second);
+            P -= a[i];
+        }
+        if(ok) printf("%d\n", ans);
     }
-    
     return 0;
 }
