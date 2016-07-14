@@ -1,6 +1,6 @@
 /**********************jibancanyang**************************
  *Author*        :jibancanyang
- *Created Time*  : 四  7/14 11:45:57 2016
+ *Created Time*  : 四  7/14 15:04:28 2016
 **Problem**:
 **Analyse**:
 **Get**:
@@ -33,42 +33,19 @@ typedef vector<int> vi;
 #define sa(n) scanf("%d", &(n))
 #define sal(n) scanf("%lld", &(n))
 #define sai(n) scanf("%I64d", &(n))
-#define vep(c) for (decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
+#define vep(c) for(decltype((c).begin() ) it = (c).begin(); it != (c).end(); it++) 
 const int mod = int(1e9) + 7, INF = 0x3f3f3f3f;
 const int maxn = 1e5 + 13;
-
-
+ll temp = (ll)1e17;
 int main(void)
 {
 #ifdef LOCAL
-    freopen("in.txt", "r", stdin);
+    //freopen("in.txt", "r", stdin);
+    //freopen("out.txt", "w", stdout);
 #endif
-	int n, k;
-	while (~sa(n)) {
-        if (n % 4 == 2 || n % 4 == 3) {
-            pri(0);
-            continue;
-        }
-		if (n % 4 == 0) {
-			k = n / 4;
-            printf("%d ", 2 *k + 1);
-            for (int i=4*k; i>=3*k+2;i--) printf("%d ",i);
-            for (int i=3*k; i>=2*k+2;i--) printf("%d ",i);
-            for (int i=2*k; i>=k+1;i--) printf("%d ",i);
-            printf("%d ", 3* k + 1); 
-            //(3 *k + 1);
-            for (int i=k;i>=1;i--) printf("%d ",i);
-        } else {
-            k = (n - 1) / 4; printf("%d ", 4 *k + 1);
-            for (int i=4*k; i>=3*k+2; i--) printf("%d ",i);
-            for (int i=3*k; i>=2*k+2;i--) printf("%d ",i);
-            for (int i=2*k; i>=k+1;i--) printf("%d ",i);
-            if (k)
-                printf("%d ", 3* k + 1); 
-            for (int i=k;i>=1;i--) printf("%d ",i);
-            if(k) printf("%d ",2*k+1);
-        }
-        puts("");
-    }
+    ll a;
+    cin >> a;
+    ll k = 5 * (9 * (18 * (temp % a) % a) % a) % a;
+    printf("%lld %lld\n", a - k, temp * 10 - 1 + a - k);
     return 0;
 }
