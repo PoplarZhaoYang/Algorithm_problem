@@ -1,4 +1,2 @@
-26 50 1
-abcdefghijklmnopqrstuvwxyz
-bb
-
+12
+1 1 2 2 4 4 3 3 1 10 8
