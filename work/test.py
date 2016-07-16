@@ -1,21 +1,2 @@
-s = input()
-if '.' not in s:
-    s = s + '.'
-p, q = s.strip('0').split('.')
-if not p:
-    t = q.strip('0')
-    e = len(t) - len(q) - 1
-    l = t[0]
-    r = t[1:]
-else:
-    e = len(p) - 1
-    l = p[0]
-    r = (p[1:] + q).rstrip('0')
-if l:
-    print(l, end = '')
-else:
-    print(0, end = '')
-if r:
-    print('.' + r, end = '')
-if e:
-    print('E%d' % e, end = '')
+#include <iostream>
+using namespace std; 
