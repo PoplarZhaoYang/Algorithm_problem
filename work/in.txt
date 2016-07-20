@@ -1,5 +1,2 @@
-3 6
-3 2 8
-heart
-earth
-art
+4
+2 3 3 4
