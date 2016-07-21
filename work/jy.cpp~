@@ -1,38 +1,61 @@
 #include <iostream>
-#include <set>
 #include <cstring>
-#define pl(x) std::cout << #x << ": " << x << std::endl
-#define pr(x) std::cout << #x << ": " << x 
+#include <cstdio>
+using namespace std;
 
-struct solve
+
+struct jibancanyang
 {
-    int  dp[222][222];
-    int n, m;
+    int chess[1 << 21];
+    bool have[30];
 
-    void init() {
-        memset(dp, -1, sizeof(dp));
-    }
-
-    void input() {
-        init();
-        while (std::cin >> n >> m) {
-            std::cout << (run(n, m) ? "WIN" : "LOSE") << std::endl;
+    void pre() {
+        for (int i = 1; i < 1 << 20; i++) {
+            memset(have, 0, sizeof(have));
+            for (int j = 0; j < 20; j++) {
+                if (i & (1 << j)) {
+                    int k;
+                    for (k = j - 1; k >= 0; k--) {
+                        if (!(i & (1 << k))) break;
+                    }
+                    if (k >= 0) {
+                        int temp = i ^ (1 << j) | (1 << k);
+                        have[chess[temp]] = true;
+                    } 
+                }
+            }
+            int cnt = 0;
+            while (have[cnt]) cnt++;
+            chess[i] = cnt;
         }
     }
 
-    int run(int x, int y) {
-        if (dp[x][y] != -1) return dp[x][y];
-        std::set<int> S;
-        for (int i = 2; i <= x - 2; i++) S.insert(run(i, y) ^ run(x - i, y));
-        for (int i = 2; i <= y - 2; i++) S.insert(run(x, i) ^ run(x, y - i));
-        int cnt = 0;
-        while (S.count(cnt)) cnt++;
-        return dp[x][y] = cnt;
+    void run() {
+        pre();
+        int T, n; 
+        scanf("%d", &T);
+        while (T--) {
+            scanf("%d", &n);
+            int ans = 0;
+            while (n--) {
+                int x, s = 0, bit;
+                scanf("%d", &x);
+                while (x--) {
+                    scanf("%d", &bit);
+                    s ^= 1 << (20 - bit);
+                }
+                ans ^= chess[s]; 
+            }
+            puts(ans ? "YES" : "NO");
+        }
     }
+
 }ac;
 
 int main()
 {
-    ac.input();
+    freopen("in.txt", "r", stdin);
+    ac.run();
     return 0;
 }
+
