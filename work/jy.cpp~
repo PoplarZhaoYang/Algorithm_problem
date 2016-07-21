@@ -1,41 +1,38 @@
 #include <iostream>
+#include <set>
+#include <cstring>
+#define pl(x) std::cout << #x << ": " << x << std::endl
+#define pr(x) std::cout << #x << ": " << x 
 
-class solve
+struct solve
 {
-private:
-    int T, n, A[1111];
-public:
-    void sort() {
-        for (int i = 1; i <= n; i++) {
-            int  key = i;
-            for (int j = i + 1; j <= n; j++) {
-                if (A[j] < A[key]) {
-                    key = j;
-                }
-            }
-            std::swap(A[i], A[key]);
+    int  dp[222][222];
+    int n, m;
+
+    void init() {
+        memset(dp, -1, sizeof(dp));
+    }
+
+    void input() {
+        init();
+        while (std::cin >> n >> m) {
+            std::cout << (run(n, m) ? "WIN" : "LOSE") << std::endl;
         }
     }
 
-    void run() {
-        std::cin >> T;
-        A[0] = 0;
-        while (T--) {
-            std::cin >> n;
-            for (int i = 1; i <= n; i++) std::cin >> A[i];
-            sort();
-            int ans = 0;
-            for (int i = (n % 2 ? 1 : 2); i <= n; i += 2) {
-                ans ^= A[i] - A[i - 1] - 1;
-            }
-            std::cout << (ans ? "Georgia will win" : "Bob will win") << std::endl;
-        }
+    int run(int x, int y) {
+        if (dp[x][y] != -1) return dp[x][y];
+        std::set<int> S;
+        for (int i = 2; i <= x - 2; i++) S.insert(run(i, y) ^ run(x - i, y));
+        for (int i = 2; i <= y - 2; i++) S.insert(run(x, i) ^ run(x, y - i));
+        int cnt = 0;
+        while (S.count(cnt)) cnt++;
+        return dp[x][y] = cnt;
     }
 }ac;
 
 int main()
 {
-   // freopen("in.txt", "r", stdin);
-    ac.run();
+    ac.input();
     return 0;
 }
