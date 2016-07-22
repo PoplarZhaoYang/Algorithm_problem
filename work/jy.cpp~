@@ -8,10 +8,10 @@ using namespace std;
 
 struct jibancanyang
 {
-    int flower[51234 << 2], n;
+    int flower[212345 << 2], n;
 
     void push_up(int rt) {
-        flower[rt] = flower[rt << 1] + flower[rt << 1 | 1];
+        flower[rt] = max(flower[rt << 1] , flower[rt << 1 | 1]);
     }
 
     void build(int l, int r, int rt) {
@@ -26,7 +26,7 @@ struct jibancanyang
 
     void update(int a, int b, int l, int r, int rt) {
         if (l == r) {
-            flower[l] += b;
+            flower[rt] += b;
             return;
         }
         int m = (l + r) / 2;
@@ -38,30 +38,23 @@ struct jibancanyang
     int query(int L, int R, int l, int r, int rt) {
         if (L <= l && r <= R) return flower[rt];
         int m = (l + r) / 2;
-        int ret = 0;
-        if (L <= m) ret += query(L, R, lson);
-        if (R > m) ret += query(L, R, rson);
+        int ret = -int(1e9);
+        if (L <= m) ret = max(ret, query(L, R, lson));
+        if (R > m) ret = max(ret, query(L, R, rson));
         return ret;
     }
 
     void run() {
-        int T;
-        scanf("%d", &T);
-        for (int cas = 1; cas <= T; cas++) {
-            scanf("%d", &n);
+        int m;
+        while (~scanf("%d%d", &n, &m)) {
             build(1, n, 1);
-            printf("Case %d:\n", cas);
-            while (true) {
+            while (m--) {
+                char c;
                 int x, y;
-                string op;
-                cin >> op;
-                if (op == "End") break;
-                scanf("%d%d", &x, &y);
-                if (op == "Query") {
-                    printf("%d\n", query(x, y, 1, n, 1));
-                } 
-                if (op == "Add") update(x, y, 1, n, 1);
-                if (op == "Sub") update(x, -y, 1, n, 1);
+                getchar();
+                scanf("%c%d%d", &c, &x, &y);
+                if (c == 'Q') printf("%d\n", query(x, y, 1, n, 1));
+                else update(x, y, 1, n, 1);
             }
         }
     }
