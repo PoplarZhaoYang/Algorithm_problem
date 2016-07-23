@@ -1,69 +1,52 @@
-#include <iostream>
 #include <cstdio>
+#include <iostream>
+#include <cstring>
+#include <set>
+#include <map>
 using namespace std;
-
-#define root l, r, rt
-#define lson l, m, rt << 1
-#define rson m + 1, r, rt << 1 | 1
+#define pr(x) cout << #x << ": " << x << "  " 
+#define pl(x) cout << #x << ": " << x << endl;
 
 struct jibancanyang
 {
-    int flower[212345 << 2], n;
+    int n, t;
+    string str;
 
-    void push_up(int rt) {
-        flower[rt] = max(flower[rt << 1] , flower[rt << 1 | 1]);
-    }
-
-    void build(int l, int r, int rt) {
-        if (l == r) {
-            scanf("%d", &flower[rt]);
-            return;
+    void two() {
+        int l = 0, r = 0;
+        map<char, int> st;
+        int ret = int(1e9);
+        while (l < n) {
+            while (r < n && (int)st.size() < t) {
+                st[str[r++]]++;
+            }
+            if (t <= (int)st.size()) ret = min(ret, r - l);
+            else break;
+            st[str[l]]--;
+            if (st[str[l]] == 0) st.erase(str[l]);
+            l++;
         }
-        int m = (l + r) >> 1;
-        build(lson), build(rson);
-        push_up(rt);
-    }
-
-    void update(int a, int b, int l, int r, int rt) {
-        if (l == r) {
-            flower[rt] += b;
-            return;
-        }
-        int m = (l + r) / 2;
-        if (a <= m) update(a, b, lson);
-        if (a > m) update(a, b, rson);
-        push_up(rt);
-    }
-
-    int query(int L, int R, int l, int r, int rt) {
-        if (L <= l && r <= R) return flower[rt];
-        int m = (l + r) / 2;
-        int ret = -int(1e9);
-        if (L <= m) ret = max(ret, query(L, R, lson));
-        if (R > m) ret = max(ret, query(L, R, rson));
-        return ret;
+        cout << ret << endl;
     }
 
     void run() {
-        int m;
-        while (~scanf("%d%d", &n, &m)) {
-            build(1, n, 1);
-            while (m--) {
-                char c;
-                int x, y;
-                getchar();
-                scanf("%c%d%d", &c, &x, &y);
-                if (c == 'Q') printf("%d\n", query(x, y, 1, n, 1));
-                else update(x, y, 1, n, 1);
-            }
+        cin >> n >> str;
+        set<char> st;
+        for (int i = 0; i < (int)str.size(); i++) {
+            st.insert(str[i]);
         }
+        t = st.size();
+        two();
     }
 
 }ac;
 
-int main() 
+int main()
 {
+#ifdef LOCAL
     freopen("in.txt", "r", stdin);
+    //freopen("out.txt", "w", stdout);
+#endif
     ac.run();
     return 0;
 }
