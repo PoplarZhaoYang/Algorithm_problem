@@ -1,62 +1,76 @@
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <algorithm>
-#include <bitset>
-using namespace std;
-#define pr(x) cout << #x << ": " << x << "  " 
-#define pl(x) cout << #x << ": " << x << endl;
+#include <cstdio>  
+#include <iostream>  
+#include <string>  
+#include <algorithm>  
+#include <cmath>  
+#include <cstring>  
+using namespace std;  
 
-typedef bitset<112345> bit;
+const int MAXN = 1e5 + 5;
 
-struct jibancanyang
-{
-    char s[112345], t[112345];
-    bit dp[2][3], table[26];
-    int n, m;
-
-    void fun() {
-        int T;
-        scanf("%d", &T);
-        while (T--) {
-            scanf("%d%d", &n, &m);
-            scanf("%s%s", s + 1, t + 1);
-            for (int i = 0; i < 26; i++) table[i].reset();
-            for (int i = 1; i <= n; i++) table[s[i] - 'a'][i] = true;
-            bool cur = 0;
-            for (int i = 0; i < 3; ++i) dp[cur][i].reset();
-            dp[cur][1].set();
-            for (int i = 1; i <= m; ++i) {
-                int p = t[i - 1] - 'a', c = t[i] - 'a', a = t[i + 1] - 'a';
-                if (i > 1) dp[!cur][0] = (dp[cur][2] << 1) & table[p];
-                else dp[!cur][0].reset();
-
-                dp[!cur][1] = (dp[cur][1] | dp[cur][0]) << 1 & table[c];
-
-                if (i < m) dp[!cur][2] = (dp[cur][1] | dp[cur][0]) << 1 & table[a];
-                else dp[!cur][2].reset();
-                
-                cur = !cur;
-            }
-
-            for (int i = 1; i <= n - m + 1; ++i) {
-                bool ans = dp[cur][0][i + m - 1] | dp[cur][1][i + m - 1];
-                putchar(ans ? '1' : '0');
-            }
-            
-            for (int i = n - m + 2; i <= n; ++i) putchar('0');
-            puts("");
+char s[MAXN];
+int SA[MAXN], R[MAXN], H[MAXN];
+int wa[MAXN], wb[MAXN], wv[MAXN], wc[MAXN];
+int cmp(int *r, int a, int b, int l) {
+    return r[a] == r[b] && r[a + l] == r[b + l];
+}
+void Suffix(char *r, int m = 128) {
+    int n = strlen(r) + 1;
+    int i, j, p, *x = wa, *y = wb, *t;
+    for(i = 0; i < m; i++) wc[i] = 0;
+    for(i = 0; i < n; i++) wc[x[i] = r[i]]++;
+    for(i = 1; i < m; i++) wc[i] += wc[i - 1];
+    for(i = n - 1; i >= 0; i--) SA[--wc[x[i]]] = i;
+    for(j = 1, p = 1; p < n; j *= 2, m = p) {
+        for(p = 0, i = n - j; i < n; i++) y[p++] = i;
+        for(i = 0; i < n; i++) if(SA[i] >= j) y[p++] = SA[i] - j;
+        for(i = 0; i < n; i++) wv[i] = x[y[i]];
+        for(i = 0; i < m; i++) wc[i] = 0;
+        for(i = 0; i < n; i++) wc[wv[i]]++;
+        for(i = 1; i < m; i++) wc[i] += wc[i - 1];
+        for(i = n - 1; i >= 0; i--) SA[--wc[wv[i]]] = y[i];
+        for(t = x, x = y, y = t, p = 1, x[SA[0]] = 0, i = 1; i < n; i++) {
+            x[SA[i]] = cmp(y, SA[i - 1], SA[i], j) ? p - 1 : p++;
         }
     }
+    int k = 0; n--;
+    for(i = 0; i <= n; i++) R[SA[i]] = i;
+    for(i = 0; i < n; i++) {
+        if(k) k--;
+        j = SA[R[i] - 1];
+        while(r[i + k] == r[j + k]) k++;
+        H[R[i]] = k;
+    }
+}
 
-}ac;
-
-int main()
-{
+int last[MAXN];
+  
+int main()  
+{  
 #ifdef LOCAL
     freopen("in.txt", "r", stdin);
-    //freopen("out.txt", "w", stdout);
 #endif
-    ac.fun();
-    return 0;
+    int t;
+    long long ans;  
+    char c[10];
+    scanf("%d",&t);  
+    for (int cas = 1; cas <= t; cas++)  
+    {  
+        ans = 0;  
+        scanf("%s",c);
+        scanf("%s",s);  
+        int n = strlen(s);  
+        last[n] = n;
+        Suffix(s);
+        for (int i = n - 1; i >= 0; i--) {
+            if (s[i] == c[0]) last[i] = i;
+            else last[i] = last[i + 1];
+        }
+        for(int i=1; i<=n; i++) {  
+            long long p = max(H[i], last[SA[i]] - SA[i]);
+            ans += n - SA[i] - p;  
+        }  
+        printf("Case #%d: %lld\n", cas, ans);  
+    }  
+    return 0;  
 }

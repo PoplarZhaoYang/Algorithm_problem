@@ -1,10 +1,6 @@
-3
-4 1
-abac
-a
-4 2
-aaaa
-aa
-9 3
-abcbacacb
-abc
+
+2 
+a 
+abc 
+b 
+bbb
