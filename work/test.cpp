@@ -6,7 +6,7 @@ using namespace std;
 char r[1010];
 int sa[1010];
 int wa[MAXN],wb[MAXN],wv[MAXN],ws[MAXN];
-int height[MAXN],rank[MAXN];
+int height[MAXN],rnk[MAXN];
 inline bool cmp(int *r,int a,int b,int len){
     return r[a]==r[b]&&r[a+len]==r[b+len];
 }
@@ -42,9 +42,9 @@ void SA(int n,int m){
 void Height(int n){
     int i,j,k=0;
     for(i=1;i<=n;i++)   //sa[0]是以'\0'为首的后缀
-        rank[sa[i]]=i;
-    for(i=0;i<n;height[rank[i++]]=k)
-        for(k?k--:0,j=sa[rank[i]-1];r[i+k]==r[j+k];k++);
+        rnk[sa[i]]=i;
+    for(i=0;i<n;height[rnk[i++]]=k)
+        for(k?k--:0,j=sa[rnk[i]-1];r[i+k]==r[j+k];k++);
 }
 void solve(int n){
     long long sum=0;

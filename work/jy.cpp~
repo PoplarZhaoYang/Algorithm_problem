@@ -1,76 +1,81 @@
-#include <cstdio>  
-#include <iostream>  
-#include <string>  
-#include <algorithm>  
-#include <cmath>  
-#include <cstring>  
-using namespace std;  
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+#define pr(x) cout << #x << ": " << x << "  " 
+#define pl(x) cout << #x << ": " << x << endl;
 
-const int MAXN = 1e5 + 5;
+struct jibancanyang
+{
+    long long n, l, r, P[20], A[20];
+    long long m[20], mod[20], cnt; 
 
-char s[MAXN];
-int SA[MAXN], R[MAXN], H[MAXN];
-int wa[MAXN], wb[MAXN], wv[MAXN], wc[MAXN];
-int cmp(int *r, int a, int b, int l) {
-    return r[a] == r[b] && r[a + l] == r[b + l];
-}
-void Suffix(char *r, int m = 128) {
-    int n = strlen(r) + 1;
-    int i, j, p, *x = wa, *y = wb, *t;
-    for(i = 0; i < m; i++) wc[i] = 0;
-    for(i = 0; i < n; i++) wc[x[i] = r[i]]++;
-    for(i = 1; i < m; i++) wc[i] += wc[i - 1];
-    for(i = n - 1; i >= 0; i--) SA[--wc[x[i]]] = i;
-    for(j = 1, p = 1; p < n; j *= 2, m = p) {
-        for(p = 0, i = n - j; i < n; i++) y[p++] = i;
-        for(i = 0; i < n; i++) if(SA[i] >= j) y[p++] = SA[i] - j;
-        for(i = 0; i < n; i++) wv[i] = x[y[i]];
-        for(i = 0; i < m; i++) wc[i] = 0;
-        for(i = 0; i < n; i++) wc[wv[i]]++;
-        for(i = 1; i < m; i++) wc[i] += wc[i - 1];
-        for(i = n - 1; i >= 0; i--) SA[--wc[wv[i]]] = y[i];
-        for(t = x, x = y, y = t, p = 1, x[SA[0]] = 0, i = 1; i < n; i++) {
-            x[SA[i]] = cmp(y, SA[i - 1], SA[i], j) ? p - 1 : p++;
+    long long extgcd(long long a, long long b, long long &x, long long &y) {
+        long long d = a;
+        if (b) d = extgcd(b, a % b, y, x), y -= a / b * x;
+        else x = 1, y = 0;
+        return d;
+    }
+
+    long long mult(long long a, long long k, long long m) {
+        long long ret = 0;
+        while (k) {
+            if (k & 1) ret = (ret + a) % m;
+            a = (a + a) % m;
+            k >>= 1;
+        }
+        return ret;
+    }
+
+
+    long long crt(long long r) {
+         long long M = 1, ans = 0;
+         for (int i = 0; i < cnt; ++i)
+             M *= m[i];
+         for (int i = 0; i < cnt; ++i) {
+             long long N = M / m[i];
+             long long x, y;
+             extgcd(N, m[i], x, y);
+             x = (x % m[i] + m[i]) % m[i];
+             ans = (ans + mult(mult(mod[i] , x, M), N, M)) % M;
+         }
+         return (r - ans + M) / M;
+    }
+
+    long long run(long long x) {
+        long long ret = x / 7;
+        m[0] = 7, mod[0] = 0;
+        for (int i = 1; i < (1 << n); ++i) {
+            cnt = 1;
+            for (int j = 0; j != n; ++j) {
+                if ((i >> j) & 1) m[cnt] = P[j], mod[cnt++] = A[j];
+            }
+            long long c = crt(x);
+            cnt & 1 ? ret +=  c : ret -=  c;
+        }
+        return ret;
+    }
+
+    void fun() {
+        int T;
+        scanf("%d", &T);
+        for (int cas = 1; cas <= T; ++cas) {
+            scanf("%lld%lld%lld", &n, &l, &r);
+            for (int i = 0; i != n; ++i) 
+                scanf("%lld%lld", &P[i], &A[i]);
+            printf("Case #%d: %lld\n", cas, run(r) - run(l - 1));
         }
     }
-    int k = 0; n--;
-    for(i = 0; i <= n; i++) R[SA[i]] = i;
-    for(i = 0; i < n; i++) {
-        if(k) k--;
-        j = SA[R[i] - 1];
-        while(r[i + k] == r[j + k]) k++;
-        H[R[i]] = k;
-    }
-}
 
-int last[MAXN];
-  
-int main()  
-{  
+}ac;
+
+int main()
+{
 #ifdef LOCAL
     freopen("in.txt", "r", stdin);
+    //freopen("out.txt", "w", stdout);
 #endif
-    int t;
-    long long ans;  
-    char c[10];
-    scanf("%d",&t);  
-    for (int cas = 1; cas <= t; cas++)  
-    {  
-        ans = 0;  
-        scanf("%s",c);
-        scanf("%s",s);  
-        int n = strlen(s);  
-        last[n] = n;
-        Suffix(s);
-        for (int i = n - 1; i >= 0; i--) {
-            if (s[i] == c[0]) last[i] = i;
-            else last[i] = last[i + 1];
-        }
-        for(int i=1; i<=n; i++) {  
-            long long p = max(H[i], last[SA[i]] - SA[i]);
-            ans += n - SA[i] - p;  
-        }  
-        printf("Case #%d: %lld\n", cas, ans);  
-    }  
-    return 0;  
+    ac.fun();
+    return 0;
 }
