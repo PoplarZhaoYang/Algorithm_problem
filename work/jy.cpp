@@ -8,26 +8,48 @@ using namespace std;
 
 struct jibancanyang
 {
-    int n, m;
-    int A[1009], B[1008];
-    long long dp[1009][1009];
-    int mod = int(1e9) + 7;
+    static const int maxn = int(1e6) +7;
+    char str[maxn], aim[maxn * 2];
+    int ti, len, P[maxn * 2], cntl[maxn], suml[maxn], cntr[maxn], sumr[maxn];
+    long long ans;
+
+    void pre() {
+        len = strlen(str);
+        ti = 0;
+        aim[ti++] = '^';
+        for (int i = 0; i < len; ++i) aim[ti++] = '#', aim[ti++] = str[i];
+        aim[ti++] = '#', aim[ti++] = '$';
+    }
+
+    void aft() {
+        memset(suml, 0, sizeof(suml));
+        memset(sumr, 0, sizeof(suml));
+        memset(cntl, 0, sizeof(suml));
+        memset(cntl, 0, sizeof(suml));
+        for (int i = 1; i < ti - 1; i++) {
+            int c = (i + 1) / 2, l = (c - 1 - P[i]) / 2, r = l + P[i] - 1; 
+            cntl[c]++, cntl[r + 1]--;
+
+
+        }
+
+
+    }
+
+    void manacher() {
+        pre();
+        int C = 0, R = 0;
+        for (int i = 1; i < ti - 1; ++i) {
+            int i_mirror = 2 * C - i;
+            P[i] = (R > i) ? min((R - i), P[i_mirror]) : 0;
+            while (aim[i + 1 + P[i]] == aim[i - 1 - P[i]]) ++P[i];
+            if (i + P[i] > R) C = i, R = i + P[i];
+        }
+        aft();
+    }
 
     void fun() {
-        while (~scanf("%d%d", &n, &m)) {
-            for (int i = 1; i <= n; ++i) scanf("%d", &A[i]);
-            for (int j = 1; j <= m; ++j) scanf("%d", &B[j]);
-            A[0] = B[0] = 0;
-            memset(dp, 0, sizeof(dp));
-            for (int i = 1; i <= n; ++i) {
-                for (int j = 1; j <= m; ++j) {
-                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1] - dp[i - 1][j - 1];
-                    if (A[i] == B[j]) dp[i][j] +=  dp[i - 1][j - 1] + 1;
-                    dp[i][j] = (dp[i][j] % mod + mod) % mod;
-                }
-            }
-            printf("%lld\n", dp[n][m]);
-        }
+        while (~scanf("%s", str)) manacher(), printf("%lld\n", ans);
     }
 
 }ac;
@@ -35,9 +57,9 @@ struct jibancanyang
 int main()
 {
 #ifdef LOCAL
-    freopen("in.txt", "r", stdin);
+    //freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    ac.fun();
+
     return 0;
 }
