@@ -1,72 +1,102 @@
-#include <iostream>
-#include <cstring>
 #include <cstdio>
-
+#include <set>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+#include <vector>
 using namespace std;
+#define pr(x) cout << #x << ": " << x << "  " 
+#define pl(x) cout << #x << ": " << x << endl;
 
-int dp[(1<<21)+10][9];
-int g,b,s;
-int v[25][10];
-int a[10];
-
-int max(int a,int b)
+struct jibancanyang
 {
-    return a>b?a:b;
-}
+    vector<int> G[18];
+    int dp[(1 << 18)][18], n;
+    long long pows[1 << 18];
+    long long mod = 1ll << 32;
+
+    void pre() {
+        pows[0] = 1;
+        for (int i = 1; i < 1 << 18; ++i) pows[i] = pows[i - 1] * 233, pows[i] %= mod;
+    }
+
+    void fun() {
+        int T;
+        scanf("%d", &T);
+        pre();
+        while (T--) {
+            scanf("%d", &n);
+            for (int i = 0; i < n; ++i) {
+                G[i].clear();
+                getchar();
+                for (int j = 0; j < n; ++j) {
+                    char c;
+                    c = getchar();
+                    if (c == '1') G[i].push_back(j);
+                }
+            }
+
+            for (int s = 1; s < 1 << n; ++s) {
+                int mins = 120, from, k, a;
+                for (int j = 0; j < n; ++j) {
+                    if (s >> j & 1) {
+                        int nxt = s ^ (1 << j), cnt = 0;
+
+                        bool sst[19];
+                        memset(sst, 0, sizeof(sst));
+                        for (auto c : G[j]) {
+                            if (nxt >> c & 1) {
+                                if (!sst[dp[nxt][c]]) cnt++;
+                                sst[dp[nxt][c]] = true;
+                            }
+                        }
+
+                        int nxtcnt = 0;
+                        bool st[19];
+                        memset(st, 0, sizeof(st));
+                        for (int i = 0; i < n; ++i) {
+                            if (nxt >> i & 1) {
+                                if (!st[dp[nxt][i]]) nxtcnt++;
+                                st[dp[nxt][i]] = true;
+                            }
+                        }
+
+                        int add = -1;
+                        for (int i = 1; i <= nxtcnt; ++i) 
+                            if ( st[i] == 0) 
+                                add = i;
+                        if (add == -1) add = cnt + 1; 
+
+                        cnt = max(cnt, nxtcnt);
+                        if (cnt <= mins) {
+                            mins = cnt; 
+                            from = nxt;
+                            k = j;
+                            a = add;
+                        }
+                    }
+                }
+                for (int i = 0; i < n; ++i) dp[s][i] = dp[from][i];
+                dp[s][k] = a;
+            }
+
+            long long ans = 0;
+            for (int s = 1; s < 1 << n; ++s) {
+                int id = 0;
+                for (int i = 0; i < n; ++i) id = max(id, dp[s][i]);
+                ans = (ans + id * pows[s] % mod) % mod;
+            }
+            printf("%lld\n", ans);
+        }
+    }
+}ac;
 
 int main()
 {
+#ifdef LOCAL
     freopen("in.txt", "r", stdin);
-    while (scanf("%d%d%d",&g,&b,&s)&&g+b+s)
-    {
-        memset(v,0,sizeof(v));
-        memset(a,0,sizeof(a));
-        int sum=0;
-        for (int i=0;i<b;i++)
-        {
-            int n;
-            scanf("%d",&n);
-            while (n--)
-            {
-                int a1;
-                scanf("%d",&a1);
-                v[i][a1]++;
-                a[a1]++;
-                sum+=a[a1]/s;
-                a[a1]%=s;
-            }
-        }
-        int mm=(1<<b)-1;
-        for (int i=1;i<=g;i++)
-            dp[0][i]=a[i];      //全部取完炉子的状态
-        dp[0][0]=0;
-        for (int i=1;i<=mm;i++)
-            dp[i][0]=-1000000;
-        for (int i=0;i<=mm;i++)
-        {
-            for (int j=0;j<b;j++)
-            {
-                int x=(1<<j);
-                if ((i&x)==0)   //如果j取过了
-                {
-                    int gs=0;
-                    for (int k=1;k<=g;k++)  //从没取j到取j总过得到多少宝石
-                    {
-                        a[k]=dp[i][k]-v[j][k];
-                        while (a[k]<0)  //说明取的时候获得了宝石
-                        {
-                            gs++;
-                            a[k]+=s;
-                        }
-                        dp[i^x][k]=a[k];
-                    }
-                    if (gs>0)   //如果大于0，不换手，先手+gs-后手=gs+dp[i][0]
-                        dp[i^x][0]=max(dp[i^x][0],gs+dp[i][0]);
-                    else    //换手，新得到的分数等于0，原来的先手-后手变成后手-先手，取负即可
-                        dp[i^x][0]=max(dp[i^x][0],-dp[i][0]);
-                }
-            }
-        }
-        printf("%d\n",dp[mm][0]);
-    }
+    //freopen("out.txt", "w", stdout);
+#endif
+    ac.fun();
+    return 0;
 }
