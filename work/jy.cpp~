@@ -2,59 +2,46 @@
 #include <cstring>
 #include <iostream>
 #include <algorithm>
-#include <vector>
-#include <queue>
-#include <set>
-#include <map>
-#include <string>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
-#include <stack>
 using namespace std;
-typedef pair<int, int> pii;
-typedef long long ll;
-typedef unsigned long long ull;
-#define xx first
-#define yy second
-#define pr(x) cout << #x << " " << x << " "
-#define prln(x) cout << #x << " " << x << endl
-template<class T> inline T lowbit(T x) { return x & (-x); }
+#define pr(x) cout << #x << ": " << x << "  " 
+#define pl(x) cout << #x << ": " << x << endl;
 
-const int MAXN = 5e4 + 5;
-double sum[MAXN], sqr_sum[MAXN];
-int d[MAXN];
+struct jibancanyang
+{
+    long long ans, n, A[22];
 
-int T;
-int n, k;
-int main(void) {
-#ifdef LOCAL 
+    int get(long long x) {
+        return x ? get(x - (x & -x)) + 1 : 0;
+    }
+
+    void dfs(int ith, long long x, int f) {
+        if (ith > n) {
+            if (x >= 0) ans += (1ll << (get(x))) * f; 
+            return;
+        }
+        dfs(ith + 1, x, f);
+        dfs(ith + 1, x != -2? x & A[ith] : A[ith], -2*f);
+    }
+
+    void fun() {
+        int T;
+        scanf("%d", &T);
+        for (int cas = 1; cas <= T; ++cas) {
+            scanf("%lld", &n);
+            for (int i = 1; i <= n; ++i) scanf("%lld", &A[i]);
+            ans = 0;
+            dfs(1, -2, 1);
+            printf("Case #%d: %lld\n", cas, ans);
+        }
+    }
+}ac;
+
+int main()
+{
+#ifdef LOCAL
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    scanf("%d", &T);
-    while(T--) {
-        scanf("%d%d", &n, &k);
-        for (int i = 1; i <= n; i++) {
-            scanf("%d", &d[i]);
-        }
-        if(n == k) {
-            puts("0");
-            continue;
-        }
-        k = n - k;
-        sort(d + 1, d + n + 1);
-        for (int i = 1; i <= n; i++) {
-            sum[i] = sum[i-1] + d[i];
-            sqr_sum[i] = sqr_sum[i-1] + double(d[i]) * d[i];
-        }
-        double ans = 1e18;
-        for (int i = k; i <= n; i++) {
-            double o = (sum[i] - sum[i-k]) / k;
-            ans = min(ans, sqr_sum[i] - sqr_sum[i-k] -
-                    2*(sum[i] - sum[i-k])*o + k * o * o);
-        }
-        printf("%.15f\n", ans);
-    }
+    ac.fun();
     return 0;
 }
