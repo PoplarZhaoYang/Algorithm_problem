@@ -5,65 +5,50 @@
 using namespace std;
 #define pr(x) cout << #x << ": " << x << "  " 
 #define pl(x) cout << #x << ": " << x << endl;
-typedef long long ll;
-const int maxn = int(1e5) + 13;
+
 struct jibancanyang
 {
-    int b, d, k;
-    ll elur[maxn], factors[maxn][8];
+    int dp[1 << 15], n;
+    int matrixs[15 * 15][2], points[15][2], cnt;
 
-    void getElur() {
-        memset(elur, 0, sizeof(elur));
-        memset(factors, 0, sizeof(factors));
-        elur[1] = 1;
-        for (int i = 2; i < maxn; ++i) {
-            if (!elur[i]) {
-                for (int j = i; j < maxn; j += i) {
-                    if (!elur[j]) elur[j] = j;
-                    factors[j][++factors[j][0]] = i;
-                    elur[j] = elur[j] * (i - 1) / i;
+    void preProcess() {
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                matrixs[cnt][0] = abs(points[i][0] - points[j][0]) * abs(points[i][1] - points[j][1]);
+                matrixs[cnt][1] = 0;
+                for (int k = 0; k < n; ++k) {
+                    if (min(points[i][0], points[j][0]) <= points[k][0] && points[k][0] <= max(points[i][0], points[j][0])
+                        && min(points[i][1], points[j][1]) <= points[k][1] && points[k][1] <= max(points[i][1], points[j][1]))
+                            matrixs[cnt][1] |= 1 << k;
                 }
+                cnt++;
             }
-           // elur[i] += elur[i - 1];
         }
+    }
+    int dynamicProgramming() {
+        memset(dp, 0x3f, sizeof(dp));
+        dp[0] = 0;
+        for (int s = 0; s < 1 << n; ++s) {
+            for (int i = 0; i < cnt; ++i) {
+                dp[s | matrixs[i][1]] = min(dp[s | matrixs[i][1]], dp[s] + matrixs[i][0]);
+            }
+        }
+        return dp[(1 << n) - 1];
     }
 
-    int doit(int limit, int x) {
-        ll ret = 0;
-        for (int s = 1; s < 1 << factors[x][0]; ++s) {
-            int cur = 1, cnt = 0;
-            for (int  i = 0; i < factors[x][0]; ++i) {
-                if (s >> i & 1) ++cnt, cur *= factors[x][i + 1];
-            }
-            if (cnt & 1) ret += limit / cur;
-            else ret -= limit / cur;
-        }
-        return (int)ret;
-    }
 
     void fun() {
-        int T, a, c, k;
-        scanf("%d", &T);
-        for (int cas = 1; cas <= T; ++cas) {
-            scanf("%d%d%d%d%d", &a, &b, &c, &d, &k);
-            if (k == 0) {
-                printf("Case %d: 0\n", cas);
-                continue;
+        while (scanf("%d", &n), n) {
+            cnt = 0;
+            for (int i = 0; i < n; ++i) {
+                scanf("%d%d", &points[i][0], &points[i][1]);
             }
-            b /= k, d /= k;
-            ll ans = 0;
-            if (b > d) swap(b, d);
-            for (int i = d; i >= 1; --i) {
-                if (b >= i) ans += elur[i];
-                else {
-                    ans += b - doit(b, i);
-                }
-            }
-            printf("Case %d: %lld\n", cas, ans);
+            preProcess();
+            printf("%d\n", dynamicProgramming());
         }
     }
-}ac;
 
+}ac;
 
 int main()
 {
@@ -71,7 +56,6 @@ int main()
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    ac.getElur();
     ac.fun();
     return 0;
 }
