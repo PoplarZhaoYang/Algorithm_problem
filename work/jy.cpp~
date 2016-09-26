@@ -8,58 +8,31 @@ using namespace std;
 
 struct jibancanyang
 {
-    static const int maxn = int(1e5) + 13;
-    int n, m, primes[maxn], primeCnt, factors[maxn], factorCnt;
-    bool isprime[maxn];
+    int n, m, A[10];
+    long long ans;
 
-    void getPrime() {
-        primeCnt = 0;
-        memset(isprime, false, sizeof(isprime));
-        for (int i = 2; i < maxn; ++i) {
-            if (!isprime[i]) {
-                primes[primeCnt++] = i;
-                for (int j = i; j < maxn; j += i) {
-                    isprime[j] = true;
-                }
-            }
+    void dfs(int cur, long long p, int cnt) {
+        if (p >= n) return;
+        if (cur == m) {
+            if (cnt & 1) ans += (n - 1) / p;
+            else ans -= (n - 1) / p;
+        } else {
+            dfs(cur + 1, p, cnt);
+            dfs(cur + 1, p * A[cur], cnt + 1);
         }
-    }
-
-    void getFactors(int x) {
-        factorCnt = 0;
-        for (int i = 0; (long long)primes[i] * primes[i] <= x; ++i) {
-            if (x % primes[i] == 0) {
-                factors[factorCnt++] = primes[i];
-                while (x % primes[i] == 0) x /= primes[i];
-            }
-        }
-        if (x > 1) factors[factorCnt++] = x;
-    }
-
-    long long rC() {
-        getFactors(n);
-        long long ans = (long long)n * m;
-        for (int s = 1; s < 1 << factorCnt; ++s) {
-            int cur = 1, cnt = 0;
-            for (int i = 0; i < factorCnt; ++i) {
-                if (s >> i & 1) ++cnt, cur *= factors[i];
-            }
-            if (cnt & 1) ans -= m / cur;
-            else ans += m / cur;
-        }
-        return ans;
     }
 
     void fun() {
-        int T; 
-        scanf("%d", &T);
-        getPrime();
-        while (T--) {
-            scanf("%d%d", &n, &m);
-            printf("%lld\n", rC());
+        while (~scanf("%d%d", &n, &m)) {
+            for (int i = 0; i < m; ++i) {
+                scanf("%d", &A[i]);
+                if (!A[i]) --m, --i;
+            }
+            ans = 0;
+            dfs(0, 1, 0);
+            printf("%lld\n", ans + n - 1);
         }
     }
-
 
 }ac;
 
