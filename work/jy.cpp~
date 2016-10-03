@@ -2,46 +2,79 @@
 #include <cstring>
 #include <iostream>
 #include <algorithm>
+#include <queue>
+#include <string>
+#include <cmath>
+#include <vector>
+#include <stack>
 using namespace std;
 #define pr(x) cout << #x << ": " << x << "  " 
 #define pl(x) cout << #x << ": " << x << endl;
+const int maxn = 5e3 + 13;
+int  dp[maxn][maxn];
+int last[maxn][maxn];
+int n, m, mt;
+vector<pair<int, int> > G[maxn];
+int D[maxn];
 
-struct jibancanyang
-{
-    int n, m, A[10];
-    long long ans;
-
-    void dfs(int cur, long long p, int cnt) {
-        if (p >= n) return;
-        if (cur == m) {
-            if (cnt & 1) ans += (n - 1) / p;
-            else ans -= (n - 1) / p;
-        } else {
-            dfs(cur + 1, p, cnt);
-            dfs(cur + 1, p * A[cur], cnt + 1);
-        }
-    }
-
-    void fun() {
-        while (~scanf("%d%d", &n, &m)) {
-            for (int i = 0; i < m; ++i) {
-                scanf("%d", &A[i]);
-                if (!A[i]) --m, --i;
-            }
-            ans = 0;
-            dfs(0, 1, 0);
-            printf("%lld\n", ans + n - 1);
-        }
-    }
-
-}ac;
 
 int main()
 {
-#ifdef LOCAL
+#ifdef xiaoai
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    ac.fun();
+    while (~scanf("%d%d%d", &n, &m, &mt)) {
+        while (m--) {
+            int x, y, z;
+            scanf("%d%d%d", &x, &y, &z);
+            D[y]++;
+            G[x].push_back(make_pair(y, z));
+        }
+
+        for (int i = 1; i <= n; ++i) for (int j = 0; j <= n; ++j) dp[i][j] = !j ? 0 : (1e9 +8);
+        dp[1][1] = 0;
+        dp[1][0] = 1;
+
+        queue<int> zero;
+        zero.push(1);
+
+        while (!zero.empty()) {
+            int cur = zero.front();
+            zero.pop();
+            pl(cur);
+            for (int i = 1; i <= dp[cur][0]; ++i) {
+                    for (auto nxt = G[cur].begin(); nxt != G[cur].end(); ++nxt) {
+                        if (dp[nxt -> first][i + 1] > dp[cur][i] + (nxt -> second)) {
+                            last[nxt -> first][i + 1] = cur; 
+                            dp[nxt -> first][i + 1] = dp[cur][i] + (nxt -> second);
+                        }
+                        D[nxt -> first]--;
+                        dp[nxt -> first][0] = max(dp[cur][0] + 1, dp[nxt -> first][0]);
+                        if (D[nxt -> first] == 0) zero.push(nxt -> first);
+                    }
+            }
+        }
+
+        int ans;
+        for (int i = 1; i <= n; ++i) {
+            if (dp[n][i] <= mt) ans = i;
+        }
+        printf("%d\n", ans);
+
+        stack<int> r;
+        int now = n, p = ans;
+        r.push(n);
+        while (now != 1) {
+            now = last[now][p];
+            p--;
+            r.push(now);
+        }
+        while (!r.empty()) {
+            printf("%d ", r.top());
+            r.pop();
+        }
+        puts("");
+    }
     return 0;
 }
