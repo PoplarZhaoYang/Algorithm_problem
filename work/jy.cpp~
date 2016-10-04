@@ -29,7 +29,7 @@ struct jibancanyang
         if (x >= 63 || 1ll << x > n) return;
         //pr(cur), pl(x);
         if (cur == pCnt) {
-            if (x != 1) ans += p * (int(pow(n, 1.0 / x) + 1e-8) - 1);
+            if (x != 1) ans += p * (int(pow(n, 1.0 / x) + 1e-9) - 1);
             return;
         }
         dfs(cur + 1, x * prime[cur], -p);
