@@ -2,111 +2,107 @@
 #include <cstring>
 #include <iostream>
 #include <algorithm>
-#include <vector>
 using namespace std;
 #define pr(x) cout << #x << ": " << x << "  " 
 #define pl(x) cout << #x << ": " << x << endl;
 
-struct Solution 
+static const int maxn = int(2e4) + 13;
+//后缀数组模板，时间复杂度nlogn,空间复杂度n
+struct Suffix
 {
-    int n, m, S[1001], sons[1001];
-    vector<int> G[1001];
-    int dp[1001][101][2][2];
 
-    int dfs(int cur, int x, bool f, bool t, int par) {
-        if (cur == 0 || x == 0) return 0;
-        //if (dp[cur][x][f][t]) pr(cur), pr(x), pr(f), pr(t), pl(dp[cur][x][f][t]);
-        if (dp[cur][x][f][t]) return dp[cur][x][f][t];
+    int r[maxn];
+    //后缀数组，名词数组，高度数组（表示和它前一名后缀的最长前缀长度, 从2开始有意义)。
+    int sa[maxn],rnk[maxn],height[maxn];
+    int t[maxn],t2[maxn],c[maxn],n,m;
 
-        int l = 0, r = 0;
-        for (int i = 0; i < (int)G[cur].size(); ++i) {
-            if (G[cur][i] != par) {
-                if (l) r = G[cur][i];
-                else l = G[cur][i];
-            }
-        }
+    char str[maxn];
 
-        if (l == 0 && r == 0) {
-            if (f) return S[cur];
-            return 0;
-        }
-
-        if (f && t)
-            for (int i = 0; i <= min(sons[l], x - 1); ++i) {
-                for (int j = 0; j < 4; ++j) {
-                    for (int k = 0; k < 4; ++k) {
-                        int temp = 0;
-                        if (j == 1 || k == 1) continue;
-                        if (j == 0) temp += S[l];
-                        if (k == 0) temp += S[r];
-                        dp[cur][x][1][1] = max(dp[cur][x][1][1], temp + dfs(l, i, j & 1, (j >> 1) & 1, cur) + dfs(r, x - 1 - i, k & 1, (k >> 1) & 1, cur) + S[cur]);
-                    }
-                }
-            }
-        else if(!f && t)
-            for (int i = 0; i <= min(sons[l], x); ++i) {
-                for (int j = 0; j < 4; ++j) {
-                    for (int k = 0; k < 4; ++k) {
-                        if (j == 1 || k == 1) continue;
-                        if ( (l && j == 3 && i) || (r && k == 3 && (x - i)) )  {
-                            dp[cur][x][0][1] = max(dp[cur][x][0][1], dfs(l, i, j & 1, (j >> 1) & 1, cur) + dfs(r, x - i, k & 1, (k >> 1) & 1, cur) + S[cur]);
-                        }
-                    }
-                }
-            }
-        else
-            for (int i = 0; i <= min(sons[l], x); ++i) {
-                for (int j = 0; j < 4; ++j) {
-                    for (int k = 0; k < 4; ++k) {
-                        if (j == 1 || j == 3 || k == 1 || k == 3) continue;
-                        dp[cur][x][0][0] = max(dp[cur][x][0][0], dfs(l, i, j & 1, (j >> 1) & 1, cur) + dfs(r, x - i, k & 1, (k >> 1) & 1, cur));
-                    }
-                }
-            }
-        return dp[cur][x][f][t];
+    //把string转化为r[i]
+    void init_string(string &s) {
+        n = s.size();
+        for(int i=0;i<n;i++) r[i]=(int)s[i];
+        m = 128;
     }
 
-
-    int getSons(int cur, int par) {
-        sons[cur] = 1;
-        for (int i = 0; i < (int)G[cur].size(); ++i) {
-            if (G[cur][i] == par) continue;
-            sons[cur] += getSons(G[cur][i], cur);
-        }
-        return sons[cur];
+    void init_char(char *s) {
+        n = strlen(s);
+        for(int i=0;i<n;i++) r[i]=(int)s[i];
+        m = 128;
     }
 
-    void work() {
-        S[0] = 0;
-        while (~scanf("%d%d", &n, &m)) {
-            memset(dp, 0, sizeof(dp));
-            for (int i = 1; i <= n; ++i) scanf("%d", &S[i]), G[i].clear();
-            for (int i = 1; i < n; ++i) {
-                int x, y;
-                scanf("%d%d", &x, &y);
-                G[x].push_back(y);
-                G[y].push_back(x);
+    int cmp(int *r,int a,int b,int l) { return r[a]==r[b]&&r[a+l]==r[b+l]; }
+
+    //处理得到后缀数组
+    void build() {
+        int i,k,p,*x=t,*y=t2;
+        r[n++]=0;
+        for (i=0; i<m; i++) c[i]=0;
+        for (i=0; i<n; i++) c[x[i]=r[i]]++;
+        for (i=1; i<m; i++) c[i]+=c[i-1];
+        for (i=n-1; i>=0; i--) sa[--c[x[i]]]=i;
+        for (k=1,p=1; k<n; k*=2,m=p) {
+            for (p=0,i=n-k; i<n; i++) y[p++]=i;
+            for (i=0; i<n; i++) if (sa[i]>=k) y[p++]=sa[i]-k;
+            for (i=0; i<m; i++) c[i]=0;
+            for (i=0; i<n; i++) c[x[y[i]]]++;
+            for (i=1; i<m; i++) c[i]+=c[i-1];
+            for (i=n-1; i>=0; i--) sa[--c[x[y[i]]]]=y[i];
+            swap(x,y);
+            p=1;
+            x[sa[0]]=0;
+            for (i=1; i<n; i++) x[sa[i]]=cmp(y,sa[i-1],sa[i],k)?p-1:p++;
+        }
+        n--;
+    }
+
+    //处理得到高度数组和名次数组
+    void lcp() {
+        int i, j, k = 0;
+        for (i=1; i <= n; i++) rnk[sa[i]]=i;
+        for (i=0; i < n; i++) {
+            if (k) k--;
+            j = sa[rnk[i] - 1];
+            while (r[i + k]==r[j + k]) k++;
+            height[rnk[i]] = k;
+        }
+    }
+};
+
+struct jibancanyang
+{
+
+    int que[maxn];
+
+    void fun() {
+        int n, k;
+        scanf("%d%d", &n, &k);
+        string str;
+        for (int i = 0; i < n; ++i) {
+            int x;
+            scanf("%d", &x);
+            str += char(x + '0');
+        }
+        pl(str);
+        Suffix now;
+        now.init_string(str);
+        now.build();
+        now.lcp();
+        int head = 0, tail = 0;
+        int l = 2, r = 2, ans = 0;
+        while (r <= n) {
+            while (r - l < k - 1) {
+                int x = now.height[r++];
+                while (tail != head && x < que[tail - 1]) --tail;
+                que[tail++] = x;
             }
-
-            //find root
-            int root = 1;
-            for (int i = 1; i <= n; ++i) {
-                if (G[i].size() == 1) {
-                    root = i;
-                    break;
-                }
-            } 
-
-            getSons(root, -1);
-
-            int ans = 0;
-            ans = max(dfs(root, m, true, true, -1), ans);
-            ans = max(dfs(root, m, false, true, -1), ans);
-            ans = max(dfs(root, m, false, false, -1), ans);
-            printf("%d\n", ans);
+            ans = max(ans, que[head]);
+            if (que[head] == now.height[l++]) head++;
         }
+        printf("%d\n", ans);
     }
-}now;
+
+}ac;
 
 int main()
 {
@@ -114,6 +110,6 @@ int main()
     freopen("in.txt", "r", stdin);
     //freopen("out.txt", "w", stdout);
 #endif
-    now.work();
+    ac.fun();
     return 0;
 }
