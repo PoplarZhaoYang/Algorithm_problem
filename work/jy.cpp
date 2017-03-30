@@ -1,71 +1,39 @@
-#include <iostream>
 #include <cstdio>
 #include <cstring>
-#include <vector>
+#include <iostream>
 #include <algorithm>
 using namespace std;
-#define pl(x) cout << #x << " " << x << endl
-#define pr(x) cout << #x << " " << x << " "; 
-vector<int> G[111];
+#define pr(x) cout << #x << ": " << x << "  " 
+#define pl(x) cout << #x << ": " << x << endl;
 
-struct jibancanyang
+void down(int *A, int p, int len) {
+    if (p == len) return;
+    int lson = p * 2 + 1, rson = p * 2 + 2, maxv = A[p], maxp = p;
+    if (lson < len && A[lson] > maxv) maxv = A[lson], p = lson; 
+    if (rson < len && A[rson] > maxv) maxv = A[rson], p = rson;
+    swap(A[maxp], A[p]);
+    if (p != maxp) down(A, p, len);
+}
+
+void heap_sort(int *A, int len) {
+    for (int i = (len - 1) / 2; i >= 0; --i) down(A, i, len);
+    for (int i = len - 1; i >= 0; --i) {
+        swap(A[i], A[0]);
+        down(A, 0, i);
+    }
+}
+
+int main()
 {
-    int n, m, s, ans;
-    int V[111], p;
-    bool O[111][111];
-    int vis[111], cnt;
-
-
-    void pre(int x) {
-        V[p++] = x;
-        for (int i = 0; i < (int)G[x].size(); ++i) {
-            if(G[x][i] > x) V[p++] = G[x][i];
-        }
+#ifdef LOCAL
+    freopen("in.txt", "r", stdin);
+    //freopen("out.txt", "w", stdout);
+#endif
+    int A[] = {1, 15, 5, 2, 8, 2, 7, 9, 5, 6, 5};
+    heap_sort(A, sizeof(A) / sizeof(int));
+    for (auto c: A) {
+        cout << c << " ";
     }
-
-    void dfs(int cur, int have) {
-        if (have  == s) {
-            ans++;
-            return;
-        }
-        if (cur == p) return;
-        if (cur != 0) dfs(cur + 1, have);
-
-        bool ok = true;
-        for (int i = 0; i < cnt; ++i) {
-            if (O[vis[i]][V[cur]] == 0) {
-                ok = false;
-                break;
-            }
-        }
-        if (ok) {
-            vis[cnt++] = V[cur];
-            dfs(cur + 1, have + 1);
-            cnt--;
-        }
-    }
-
-    void fun() {
-        int T;
-        scanf("%d", &T);
-        while (T--) {
-            memset(O, false, sizeof(O));
-            for (int i = 1; i<= n; ++i) G[i].clear();
-            ans = 0;
-            scanf("%d%d%d", &n, &m, &s);
-            for (int i = 1; i <= m; ++i) {
-                int x, y;
-                scanf("%d%d", &x, &y);
-                O[x][y] = O[y][x] = true;
-                G[x].push_back(y);
-                G[y].push_back(x);
-            }
-            for (int i = 1; i <= n; ++i) {
-                p = cnt = 0;
-                pre(i);
-                if (p < s) continue;
-                else {
-                    dfs(0, 0);
-                }
-            }
-
+    cout << endl;
+    return 0;
+}
