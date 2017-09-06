@@ -1,10 +1,1 @@
-6 3
-An algorithm is an effective method that can be expressed within a finite amount of space and time
-Starting from an initial state and initial input the instructions describe a computation
-That when executed proceeds through a finite number of successive states
-Eventually producing output and terminating at a final ending state
-The transition from one state to the next is not necessarily deterministic
-Some algorithms known as randomized algorithms incorporate random input
-Next to the transition
-Wormhole infinite time and space
-The transition from one state to the next is not necessarily deterministic
+45 67 33 21 2
